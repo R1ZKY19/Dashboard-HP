@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Office Data Center</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260819-2">
 </head>
 <body>
   <div id="loginScreen" class="login-screen">
@@ -13,7 +13,7 @@
       <h1>Office Data Center</h1>
       <p>Secure Internal Dashboard</p>
       <input id="loginEmail" class="login-input" type="email" autocomplete="email" placeholder="Masukkan email">
-      <button id="loginBtn">MASUK</button>
+      <button id="loginBtn" type="button">MASUK</button>
       <small>Masukkan email yang terdaftar pada Users.</small>
       <div id="loginStatus" class="login-status"></div>
     </div>
@@ -31,9 +31,9 @@
     <main class="main">
       <header class="topbar"><div><h2 id="pageTitle">Data Office</h2><span id="shiftText">SHIFT -</span></div><div class="profile"><b id="userEmail">-</b><small id="userRole">-</small></div></header>
       <section id="dashboardPage" class="page">
-        <div class="shift-card"><div><b>Shift Aktif: <span id="shiftName">-</span></b><small id="shiftInfo">-</small></div><button id="newShiftBtn">+ MULAI SHIFT BARU</button></div>
+        <div class="shift-card"><div><b>Shift Aktif: <span id="shiftName">-</span></b><small id="shiftInfo">-</small></div><button id="newShiftBtn" type="button">+ MULAI SHIFT BARU</button></div>
         <div class="stats"><div class="stat"><small>WITHDRAW</small><b id="withdrawCount">0</b></div><div class="stat"><small>DEPO</small><b id="depoCount">0</b></div><div class="stat"><small>BANK KAS</small><b id="bankKasCount">0</b></div><div class="stat"><small>TOKEN</small><b id="tokenCount">0</b></div></div>
-        <div class="panel"><div class="toolbar"><input id="searchInput" placeholder="Cari bank / nama..."><select id="checkFilter"><option value="all">Semua</option><option value="unchecked">Belum Cek</option><option value="checked">Sudah Cek</option></select><button id="refreshBtn">↻ Refresh</button></div><div class="categories"><button data-category="withdraw">BANK WITHDRAW</button><button data-category="depo">HP DEPO</button><button data-category="bankKas">HP BANK KAS</button><button data-category="token">TOKEN BCA</button></div><div class="table-wrap"><table><thead><tr><th>NO</th><th>BANK</th><th>NAMA</th><th>CHECK</th><th>ACTION</th></tr></thead><tbody id="dataTable"></tbody></table></div></div>
+        <div class="panel"><div class="toolbar"><input id="searchInput" placeholder="Cari bank / nama..."><select id="checkFilter"><option value="all">Semua</option><option value="unchecked">Belum Cek</option><option value="checked">Sudah Cek</option></select><button id="refreshBtn" type="button">↻ Refresh</button></div><div class="categories"><button type="button" data-category="withdraw">BANK WITHDRAW</button><button type="button" data-category="depo">HP DEPO</button><button type="button" data-category="bankKas">HP BANK KAS</button><button type="button" data-category="token">TOKEN BCA</button></div><div class="table-wrap"><table><thead><tr><th>NO</th><th>BANK</th><th>NAMA</th><th>CHECK</th><th>ACTION</th></tr></thead><tbody id="dataTable"></tbody></table></div></div>
       </section>
       <section id="historyPage" class="page hidden"><div class="panel"><h3>Riwayat Edit & Pengecekan</h3><div id="historyTable"></div></div></section>
       <section id="usersPage" class="page hidden"><div class="panel"><h3>User Management</h3><div id="usersTable"></div></div></section>
@@ -42,6 +42,7 @@
   </div>
   <div id="loading" class="loading hidden"><div class="spinner"></div></div>
   <div id="toast" class="toast"></div>
-  <script src="config.js"></script><script src="app.js"></script>
+  <script src="config.js?v=20260819-2"></script>
+  <script src="app.js?v=20260819-2"></script>
 </body>
 </html>
