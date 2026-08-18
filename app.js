@@ -1,0 +1,191 @@
+let dashboard=null;
+let currentCategory="withdraw";
+
+async function api(action,data={}) {
+  if (!CONFIG.API_URL || CONFIG.API_URL.includes("PASTE_")) {
+    throw new Error("API_URL belum diisi di config.js");
+  }
+  const r=await fetch(CONFIG.API_URL,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({action,...data})
+  });
+  const j=await r.json();
+  if(!j.success) throw new Error(j.message||"API Error");
+  return j.data;
+}
+
+document.addEventListener("DOMContentLoaded",init);
+
+async function init(){
+  bindEvents();
+  try{
+    showLoading();
+    dashboard=await api("getDashboard");
+    renderUser();
+    renderStats();
+    renderTable();
+  }catch(e){
+    showToast(e.message);
+  }finally{
+    hideLoading();
+  }
+}
+
+function bindEvents(){
+  document.querySelectorAll(".nav[data-page]").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+  document.querySelectorAll("[data-category]").forEach(b=>b.onclick=()=>{currentCategory=b.dataset.category;renderTable()});
+  document.getElementById("searchInput").oninput=renderTable;
+  document.getElementById("checkFilter").onchange=renderTable;
+  document.getElementById("refreshBtn").onclick=refreshDashboard;
+  document.getElementById("newShiftBtn").onclick=newShift;
+  document.getElementById("logoutBtn").onclick=()=>location.reload();
+}
+
+function renderUser(){
+  const u=dashboard.user;
+  document.getElementById("userEmail").textContent=u.email;
+  document.getElementById("userRole").textContent=u.role;
+  document.getElementById("shiftText").textContent=dashboard.shift.shift;
+  document.getElementById("shiftName").textContent=dashboard.shift.shift;
+  document.getElementById("shiftInfo").textContent=`Mulai ${dashboard.shift.startTime} • ${dashboard.shift.startedBy}`;
+  if(u.role!=="SUPER MASTER"){
+    document.getElementById("newShiftBtn").style.display="none";
+    document.getElementById("usersNav").style.display="none";
+  }
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+}
+
+function renderStats(){
+  const s=dashboard.stats;
+  document.getElementById("withdrawCount").textContent=s.withdraw;
+  document.getElementById("depoCount").textContent=s.depo;
+  document.getElementById("bankKasCount").textContent=s.bankKas;
+  document.getElementById("tokenCount").textContent=s.token;
+}
+
+function getData(){
+  if(currentCategory==="withdraw") return dashboard.data.withdraw||[];
+  if(currentCategory==="depo") return dashboard.data.depo||[];
+  if(currentCategory==="bankKas") return dashboard.data.bankKas||[];
+  if(currentCategory==="token") return [...(dashboard.data.tokenBca||[]),...(dashboard.data.tokenBca2||[])];
+  return [];
+}
+
+function renderTable(){
+  const q=document.getElementById("searchInput").value.toLowerCase().trim();
+  const filter=document.getElementById("checkFilter").value;
+  let data=getData().filter(x=>{
+    const text=`${x.number} ${x.bank} ${x.name}`.toLowerCase();
+    if(q&&!text.includes(q)) return false;
+    if(filter==="checked"&&!x.checked) return false;
+    if(filter==="unchecked"&&x.checked) return false;
+    return true;
+  });
+
+  const body=document.getElementById("dataTable");
+  body.innerHTML="";
+  data.forEach(item=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${esc(item.number)}</td>
+      <td>${esc(item.bank)}</td>
+      <td>${esc(item.name)}</td>
+      <td>
+        <input class="check" type="checkbox" ${item.checked?"checked":""}>
+        <span class="${item.checked?"checked":"pending"}">${item.checked?"SUDAH CEK":"BELUM CEK"}</span>
+      </td>
+      <td><button class="edit-btn">Edit</button></td>`;
+    tr.querySelector(".check").onchange=e=>updateCheck(item.checkCell,e.target.checked);
+    tr.querySelector(".edit-btn").onclick=()=>editData(item.nameCell,item.name);
+    body.appendChild(tr);
+  });
+}
+
+async function updateCheck(cell,checked){
+  try{
+    showLoading();
+    await api("updateCheck",{cell,checked});
+    showToast(checked?"✓ Data berhasil dicek":"✓ Check dibatalkan");
+    await refreshDashboard();
+  }catch(e){showToast(e.message)}finally{hideLoading()}
+}
+
+async function editData(cell,oldValue){
+  const value=prompt("Edit data:",oldValue);
+  if(value===null)return;
+  try{
+    showLoading();
+    await api("editData",{cell,value});
+    showToast("✓ Data berhasil diubah");
+    await refreshDashboard();
+  }catch(e){showToast(e.message)}finally{hideLoading()}
+}
+
+async function newShift(){
+  const current=dashboard.shift.shift||"SHIFT 1";
+  const m=current.match(/(\d+)/);
+  const next=`SHIFT ${m?Number(m[1])+1:2}`;
+  const shift=prompt("Nama shift baru:",next);
+  if(!shift)return;
+  if(!confirm(`Mulai ${shift}? Semua checkbox aktif akan di-reset untuk shift baru.`))return;
+  try{
+    showLoading();
+    await api("startNewShift",{shift});
+    showToast(`✓ ${shift} berhasil dimulai`);
+    await refreshDashboard();
+  }catch(e){showToast(e.message)}finally{hideLoading()}
+}
+
+async function refreshDashboard(){
+  dashboard=await api("getDashboard");
+  renderUser();renderStats();renderTable();
+}
+
+async function loadHistory(){
+  try{
+    showLoading();
+    const rows=await api("getHistory");
+    document.getElementById("historyTable").innerHTML=`
+      <div class="history-table"><table class="mini-table">
+      <thead><tr><th>Waktu</th><th>Email</th><th>Action</th><th>Shift</th><th>Cell</th><th>Item</th><th>Old</th><th>New</th></tr></thead>
+      <tbody>${rows.map(x=>`<tr>
+      <td>${esc(x.timestamp)}</td><td>${esc(x.email)}</td><td>${esc(x.action)}</td>
+      <td>${esc(x.shift)}</td><td>${esc(x.cell)}</td><td>${esc(x.item)}</td>
+      <td>${esc(x.oldValue)}</td><td>${esc(x.newValue)}</td>
+      </tr>`).join("")}</tbody></table></div>`;
+  }catch(e){showToast(e.message)}finally{hideLoading()}
+}
+
+async function loadUsers(){
+  try{
+    showLoading();
+    const rows=await api("getUsers");
+    document.getElementById("usersTable").innerHTML=`
+      <div class="history-table"><table class="mini-table">
+      <thead><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th></tr></thead>
+      <tbody>${rows.map(x=>`<tr><td>${esc(x.email)}</td><td>${esc(x.name)}</td><td>${esc(x.role)}</td><td>${esc(x.status)}</td></tr>`).join("")}</tbody></table></div>`;
+  }catch(e){showToast(e.message)}finally{hideLoading()}
+}
+
+function showPage(page){
+  document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));
+  document.getElementById(page+"Page").classList.remove("hidden");
+  document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
+  const btn=document.querySelector(`.nav[data-page="${page}"]`);
+  if(btn)btn.classList.add("active");
+  if(page==="history")loadHistory();
+  if(page==="users")loadUsers();
+}
+
+function showLoading(){document.getElementById("loading").classList.remove("hidden")}
+function hideLoading(){document.getElementById("loading").classList.add("hidden")}
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  setTimeout(()=>t.textContent="",3500);
+}
+function esc(v){
+  return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
