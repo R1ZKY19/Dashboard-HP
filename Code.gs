@@ -188,7 +188,10 @@ function apiPage_(requestId,origin,payload) {
   const id=JSON.stringify(String(requestId||''));
   const target=JSON.stringify(safe);
   const data=JSON.stringify(payload).replace(/</g,'\\u003c');
-  const html='<!doctype html><html><body><script>window.parent.postMessage({type:"OFFICE_API_RESPONSE",id:'+id+',payload:'+data+'},'+target+');</script></body></html>';
+  // IMPORTANT: Apps Script HtmlService adds its own sandbox iframe.
+  // window.parent points to the Apps Script wrapper, not GitHub Pages.
+  // window.top reaches the outer GitHub iframe and postMessage delivers the response there.
+  const html='<!doctype html><html><body><script>(function(){var message={type:"OFFICE_API_RESPONSE",id:'+id+',payload:'+data+'};try{window.top.postMessage(message,'+target+');}catch(e){window.parent.postMessage(message,'+target+');}})();</script></body></html>';
   return html_(html);
 }
 
