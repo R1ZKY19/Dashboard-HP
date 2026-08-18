@@ -1,4 +1,4 @@
 const CONFIG = {
-  API_URL: "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE",
+  API_URL: "https://script.google.com/macros/s/AKfycbxL32gf2D7AOOms72gNwdHuN4N3BuSD_s1M-CYO-7WaQP8ZJ6TYA2tGuXqUAetHfX05SQ/exec",
   APP_NAME: "OFFICE DATA CENTER"
 };
