@@ -71,6 +71,16 @@ function api(action,data={}){
   });
 }
 
+// Ambil IP publik browser sendiri untuk dicocokkan ke daftar Allowed_IP di backend.
+// Catatan: ini nilai yang dikirim klien, bukan dideteksi server - lihat penjelasan di Code.gs.
+async function getClientIp(){
+  try{
+    const res=await fetch("https://api.ipify.org?format=json");
+    const data=await res.json();
+    return data.ip||"";
+  }catch(e){return ""}
+}
+
 document.addEventListener("DOMContentLoaded",init);
 
 async function init(){
@@ -128,6 +138,32 @@ function bindEvents(){
   const shiftMalam=document.getElementById("shiftMalamBtn");
   if(shiftPagi) shiftPagi.onclick=()=>startShiftWithName("SHIFT PAGI");
   if(shiftMalam) shiftMalam.onclick=()=>startShiftWithName("SHIFT MALAM");
+
+  const changePw=document.getElementById("changePasswordBtn");
+  if(changePw) changePw.onclick=submitChangePassword;
+}
+
+async function submitChangePassword(){
+  const oldPassword=document.getElementById("oldPasswordInput")?.value||"";
+  const newPassword=document.getElementById("newPasswordInput")?.value||"";
+  const confirmPassword=document.getElementById("confirmPasswordInput")?.value||"";
+  const status=document.getElementById("passwordStatus");
+  const setStatus=msg=>{if(status)status.textContent=msg||""};
+
+  if(newPassword.length<6)return setStatus("Password baru minimal 6 karakter.");
+  if(newPassword!==confirmPassword)return setStatus("Konfirmasi password tidak cocok.");
+
+  try{
+    showLoading();setStatus("");
+    await api("changePassword",{oldPassword,newPassword});
+    showToast("✓ Password berhasil diubah");
+    setStatus("");
+    document.getElementById("oldPasswordInput").value="";
+    document.getElementById("newPasswordInput").value="";
+    document.getElementById("confirmPasswordInput").value="";
+  }catch(e){
+    setStatus(e.message);
+  }finally{hideLoading()}
 }
 
 // ===== SHIFT PAGI & MALAM =====
@@ -297,10 +333,13 @@ function renderSettings() {
 
 async function startLogin(){
   const email=(document.getElementById("loginEmail")?.value||"").trim().toLowerCase();
+  const password=document.getElementById("loginPassword")?.value||"";
   if(!email)return setLoginStatus("Email wajib diisi.");
+  if(!password)return setLoginStatus("Password wajib diisi.");
   try{
-    showLoading();setLoginStatus("Memverifikasi email...");
-    const result=await api("login",{email});
+    showLoading();setLoginStatus("Memverifikasi...");
+    const clientIp=await getClientIp();
+    const result=await api("login",{email,password,clientIp});
     if(!result?.token)throw new Error("Login gagal: session tidak dibuat.");
     sessionToken=result.token;
     localStorage.setItem(CONFIG.SESSION_KEY,sessionToken);

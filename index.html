@@ -19,8 +19,9 @@
       <h1>Office Data Center</h1>
       <p>Secure Internal Dashboard</p>
       <input id="loginEmail" class="login-input" type="email" autocomplete="email" placeholder="Masukkan email" />
+      <input id="loginPassword" class="login-input" type="password" autocomplete="current-password" placeholder="Masukkan password" />
       <button id="loginBtn" type="button">MASUK</button>
-      <small>Masukkan email yang terdaftar pada Users.</small>
+      <small>Email harus terdaftar di Users. Login pertama kali: password yang kamu ketik akan jadi password akunmu seterusnya.</small>
       <div id="loginStatus" class="login-status"></div>
     </div>
   </div>
@@ -103,6 +104,16 @@
 
       <!-- SETTINGS -->
       <section id="settingsPage" class="page hidden">
+        <div class="panel settings-panel">
+          <h3>🔒 Ganti Password</h3>
+          <div class="password-form">
+            <input id="oldPasswordInput" class="login-input" type="password" autocomplete="current-password" placeholder="Password lama" />
+            <input id="newPasswordInput" class="login-input" type="password" autocomplete="new-password" placeholder="Password baru (min. 6 karakter)" />
+            <input id="confirmPasswordInput" class="login-input" type="password" autocomplete="new-password" placeholder="Ulangi password baru" />
+            <button id="changePasswordBtn" type="button">SIMPAN PASSWORD BARU</button>
+            <div id="passwordStatus" class="login-status"></div>
+          </div>
+        </div>
         <div class="panel settings-panel">
           <h3>📊 Rekap Jumlah HP</h3>
           <div class="settings-content" id="settingsContent">
