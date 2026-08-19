@@ -1,5 +1,5 @@
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbyNREOBPwm7Lg4FcoYjiQH4Y7KXMKqWP433Ut1hAmPg04Y7p1tQsKceeAbdrmYU6SJotQ/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycby3J9cO7KoZvVHr4vxX4gUGw5mOzSyq6rAmSOh9JLHKpjkCrBgmAYv1nzUpEy_qbec4bA/exec",
   APP_NAME: "OFFICE DATA CENTER",
   SESSION_KEY: "office_dashboard_session"
 };
