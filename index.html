@@ -1,218 +1,1058 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CHEK SERAH TERIMA HP</title>
-  <link rel="stylesheet" href="style.css?v=20260819-4" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Office Data Center</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0b141e;
+      color: #e8edf2;
+      min-height: 100vh;
+    }
+
+    /* LOGIN SCREEN */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(11,20,30,0.92);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .login-screen.hidden { display: none; }
+
+    .login-card {
+      background: #1a2a3a;
+      padding: 40px 36px;
+      border-radius: 24px;
+      width: 380px;
+      max-width: 94%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+      border: 1px solid #2d4055;
+    }
+    .login-card .logo {
+      width: 64px;
+      height: 64px;
+      background: #2a7de1;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 auto 16px;
+      color: #fff;
+    }
+    .login-card h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
+    }
+    .login-card p {
+      color: #8aa3bc;
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .login-input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid #2d4055;
+      background: #0f1a24;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s;
+    }
+    .login-input:focus {
+      border-color: #2a7de1;
+      box-shadow: 0 0 0 3px rgba(42,125,225,0.2);
+    }
+    .login-card button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
+      border: none;
+      border-radius: 12px;
+      background: #2a7de1;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .login-card button:hover { background: #1e6ac7; }
+    .login-card small {
+      display: block;
+      margin-top: 14px;
+      color: #6a8aaa;
+      font-size: 12px;
+    }
+    .login-status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #e74c3c;
+      min-height: 22px;
+    }
+
+    /* APP LAYOUT */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+    .app.hidden { display: none; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      background: #111e2b;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-right: 1px solid #1e2f3f;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 20px 8px;
+      border-bottom: 1px solid #1e2f3f;
+      margin-bottom: 16px;
+    }
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: #2a7de1;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+      color: #fff;
+    }
+    .brand b { display: block; font-size: 14px; color: #fff; }
+    .brand small { font-size: 10px; color: #6a8aaa; letter-spacing: 0.5px; }
+
+    .nav {
+      background: transparent;
+      border: none;
+      color: #8aa3bc;
+      padding: 12px 14px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav:hover { background: #1a2a3a; color: #d4e2f0; }
+    .nav.active {
+      background: #1a2a3a;
+      color: #fff;
+      box-shadow: inset 3px 0 0 #2a7de1;
+    }
+    .nav.logout {
+      margin-top: auto;
+      color: #e74c3c;
+      border-top: 1px solid #1e2f3f;
+      padding-top: 18px;
+      margin-top: 12px;
+    }
+    .nav.logout:hover { background: #2a1a1a; }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      padding: 24px 32px;
+      background: #0b141e;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #1a2a3a;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .topbar h2 { font-size: 22px; font-weight: 600; }
+    .topbar #shiftText { font-size: 13px; color: #6a8aaa; margin-left: 12px; }
+    .profile { text-align: right; }
+    .profile b { display: block; font-size: 14px; }
+    .profile small { color: #6a8aaa; font-size: 12px; }
+
+    /* PAGES */
+    .page { display: block; }
+    .page.hidden { display: none; }
+
+    /* SHIFT CARD */
+    .shift-card {
+      background: #111e2b;
+      border-radius: 14px;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+      border: 1px solid #1e2f3f;
+    }
+    .shift-card b { font-size: 17px; }
+    .shift-card small { color: #6a8aaa; font-size: 13px; display: block; }
+    .shift-card button {
+      background: #2a7de1;
+      border: none;
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .shift-card button:hover { background: #1e6ac7; }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .stat {
+      background: #111e2b;
+      padding: 16px 18px;
+      border-radius: 12px;
+      border: 1px solid #1e2f3f;
+    }
+    .stat small { display: block; color: #6a8aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .stat b { font-size: 26px; display: block; margin-top: 4px; }
+
+    /* PANEL */
+    .panel {
+      background: #111e2b;
+      border-radius: 14px;
+      padding: 22px 24px;
+      border: 1px solid #1e2f3f;
+    }
+    .panel h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    /* TOOLBAR */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .toolbar input, .toolbar select {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #1e2f3f;
+      background: #0b141e;
+      color: #e8edf2;
+      font-size: 14px;
+      flex: 1 1 180px;
+      outline: none;
+    }
+    .toolbar input:focus, .toolbar select:focus {
+      border-color: #2a7de1;
+    }
+    .toolbar button {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      background: #1e2f3f;
+      color: #e8edf2;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .toolbar button:hover { background: #2a4055; }
+
+    /* CATEGORIES */
+    .categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .categories button {
+      padding: 8px 18px;
+      border-radius: 20px;
+      border: 1px solid #1e2f3f;
+      background: transparent;
+      color: #8aa3bc;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .categories button:hover {
+      background: #1a2a3a;
+      color: #fff;
+    }
+    .categories button.active {
+      background: #2a7de1;
+      border-color: #2a7de1;
+      color: #fff;
+    }
+
+    /* TABLE */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th {
+      text-align: left;
+      padding: 12px 10px;
+      color: #6a8aaa;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid #1e2f3f;
+    }
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #0f1a24;
+    }
+    tr:hover td { background: #0f1a24; }
+
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .badge-success { background: #1a3a2a; color: #58d68d; }
+    .badge-warning { background: #3a2a1a; color: #f1c40f; }
+    .badge-danger { background: #3a1a1a; color: #ec7063; }
+
+    .btn-check {
+      padding: 4px 14px;
+      border-radius: 6px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .btn-check.checked {
+      background: #1a3a2a;
+      color: #58d68d;
+    }
+    .btn-check.unchecked {
+      background: #2a1a1a;
+      color: #ec7063;
+    }
+    .btn-check:hover { opacity: 0.7; }
+
+    /* LOADING */
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(11,20,30,0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .loading.hidden { display: none; }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 4px solid #1e2f3f;
+      border-top-color: #2a7de1;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111e2b;
+      color: #e8edf2;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: 1px solid #1e2f3f;
+      font-size: 14px;
+      opacity: 0;
+      transition: 0.3s;
+      pointer-events: none;
+      z-index: 2000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .toast.show { opacity: 1; }
+
+    /* ===== SETTINGS REKAP HP ===== */
+    .rekap-container {
+      background: #0b141e;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 12px;
+      border: 1px solid #1e2f3f;
+    }
+
+    .rekap-title {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #1a2a3a;
+    }
+
+    .rekap-card {
+      background: #111e2b;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      transition: 0.2s;
+    }
+    .rekap-card:hover {
+      background: #16212e;
+    }
+
+    .rekap-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .rekap-card-header .label {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .rekap-card-header .total {
+      color: #8aa3bc;
+      font-size: 13px;
+    }
+    .rekap-card-header .total strong {
+      color: #fff;
+    }
+
+    .rekap-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      color: #c8d6e5;
+      font-size: 14px;
+    }
+    .rekap-items span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .rekap-items .num {
+      font-weight: 700;
+    }
+
+    /* Warna border kiri per kategori */
+    .card-kas { border-left: 4px solid #f39c12; }
+    .card-wd { border-left: 4px solid #3498db; }
+    .card-depo { border-left: 4px solid #2ecc71; }
+    .card-bersih { border-left: 4px solid #9b59b6; }
+    .card-data { border-left: 4px solid #1abc9c; }
+    .card-bermasalah { border-left: 4px solid #e74c3c; }
+
+    /* Warna angka per kategori */
+    .num-kas { color: #f39c12; }
+    .num-wd { color: #5dade2; }
+    .num-depo { color: #58d68d; }
+    .num-bersih { color: #af7ac5; }
+    .num-data { color: #48c9b0; }
+    .num-bermasalah { color: #ec7063; }
+
+    .rekap-ringkasan {
+      background: #0a151f;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-top: 16px;
+      border: 1px solid #1a2a3a;
+    }
+    .rekap-ringkasan .ringkasan-title {
+      font-weight: 700;
+      color: #fff;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    .rekap-ringkasan .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 4px 20px;
+      color: #c8d6e5;
+      font-size: 14px;
+    }
+    .rekap-ringkasan .grid span strong {
+      font-weight: 700;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .sidebar { width: 60px; padding: 16px 8px; }
+      .sidebar .brand b, .sidebar .brand small, .sidebar .nav span { display: none; }
+      .sidebar .brand { padding-bottom: 12px; margin-bottom: 12px; }
+      .sidebar .nav { justify-content: center; padding: 10px; font-size: 18px; }
+      .main { padding: 16px; }
+      .topbar h2 { font-size: 18px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .rekap-ringkasan .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats { grid-template-columns: 1fr; }
+      .rekap-ringkasan .grid { grid-template-columns: 1fr; }
+      .login-card { padding: 28px 20px; }
+    }
+  </style>
 </head>
 <body>
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="login-screen">
-    <div class="login-card">
-      <div class="logo">
-        <img src="https://i.ibb.co/byyM1kJ/image.png" alt="logo" />
-      </div>
-      <h1>CHEK SERAH TERIMA HP</h1>
-      <p>Secure Internal Dashboard</p>
-      <input id="loginEmail" class="login-input" type="email" autocomplete="email" placeholder="Masukkan email" />
-      <button id="loginBtn" type="button">MASUK</button>
-      <small>Masukkan email yang terdaftar pada Users.</small>
-      <div id="loginStatus" class="login-status"></div>
-    </div>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="logo">O</div>
+    <h1>Office Data Center</h1>
+    <p>Secure Internal Dashboard</p>
+    <input id="loginEmail" class="login-input" type="email" autocomplete="email" placeholder="Masukkan email">
+    <button id="loginBtn" type="button">MASUK</button>
+    <small>Masukkan email yang terdaftar pada Users.</small>
+    <div id="loginStatus" class="login-status"></div>
   </div>
+</div>
 
-  <!-- APP -->
-  <div id="app" class="app hidden">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-logo">
-          <img src="https://i.ibb.co/byyM1kJ/image.png" alt="logo" />
-        </div>
-        <div><b>OFFICE DATA</b><small>PULITOTO.COM</small></div>
-      </div>
-      <button class="nav active" data-page="dashboard">▣ Dashboard</button>
-      <button class="nav" data-page="history">◷ Riwayat</button>
-      <button class="nav" id="usersNav" data-page="users">◎ Users</button>
-      <button class="nav" data-page="settings">⚙ Settings</button>
-      <button class="nav logout" id="logoutBtn">⇥ Logout</button>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <h2 id="pageTitle">Data Office</h2>
-          <span id="shiftText">SHIFT -</span>
-          <div id="onlineUsers" class="online-users"></div>
-        </div>
-        <div class="profile"><b id="userEmail">-</b><small id="userRole">-</small></div>
-      </header>
-
-      <!-- DASHBOARD -->
-      <section id="dashboardPage" class="page">
-        <div class="shift-card">
-          <div class="shift-info">
-            <b>Shift Aktif: <span id="shiftName">-</span></b>
-            <small id="shiftInfo">-</small>
-          </div>
-          <div class="shift-actions">
-            <button id="shiftPagiBtn" type="button" class="shift-btn pagi">🌅 Shift Pagi</button>
-            <button id="shiftMalamBtn" type="button" class="shift-btn malam">🌙 Shift Malam</button>
-            <button id="newShiftBtn" type="button">+ MULAI SHIFT BARU</button>
-          </div>
-        </div>
-        <div class="stats">
-          <div class="stat"><small>WITHDRAW</small><b id="withdrawCount">0</b></div>
-          <div class="stat"><small>DEPO</small><b id="depoCount">0</b></div>
-          <div class="stat"><small>BANK KAS</small><b id="bankKasCount">0</b></div>
-          <div class="stat"><small>TOKEN</small><b id="tokenCount">0</b></div>
-        </div>
-        <div class="panel">
-          <div class="toolbar">
-            <input id="searchInput" placeholder="Cari bank / nama..." />
-            <select id="checkFilter"><option value="all">Semua</option><option value="unchecked">Belum Cek</option><option value="checked">Sudah Cek</option></select>
-            <button id="refreshBtn" type="button">↻ Refresh</button>
-          </div>
-          <div class="categories">
-            <button type="button" data-category="withdraw" class="active-cat">BANK WITHDRAW</button>
-            <button type="button" data-category="depo">HP DEPO</button>
-            <button type="button" data-category="bankKas">HP BANK KAS</button>
-            <button type="button" data-category="token">TOKEN BCA</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>NO</th><th>BANK</th><th>NAMA</th><th>CHECK</th><th>ACTION</th></tr></thead>
-              <tbody id="dataTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- HISTORY -->
-      <section id="historyPage" class="page hidden">
-        <div class="panel"><h3>Riwayat Edit & Pengecekan</h3><div id="historyTable"></div></div>
-      </section>
-
-      <!-- USERS -->
-      <section id="usersPage" class="page hidden">
-        <div class="panel"><h3>User Management</h3><div id="usersTable"></div></div>
-      </section>
-
-      <!-- SETTINGS -->
-     <section id="settingsPage" class="page hidden">
-  <div class="panel">
-    <h3>⚙️ Settings &amp; Data Rekap HP</h3>
-    <p style="margin-bottom:20px; color:#8899aa;">Backend: Apps Script API. Data: Google Sheets.</p>
-
-    <!-- ===== REKAP HP ===== -->
-    <div style="background:#1e2a3a; border-radius:12px; padding:20px; margin-top:16px;">
-
-      <h4 style="margin:0 0 12px 0; color:#ffffff; border-bottom:2px solid #2a3a4e; padding-bottom:8px;">📱 REKAP JUMLAH HP</h4>
-
-      <!-- 1. HP BANK KAS -->
-      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #f39c12;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-          <span style="font-weight:600; color:#f1c40f; font-size:15px;">🏦 HP BANK KAS</span>
-          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">4 HP</strong></span>
-        </div>
-        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
-          <span>BCA : <strong style="color:#f39c12;">2</strong></span>
-          <span>Mandiri : <strong style="color:#f39c12;">2</strong></span>
-        </div>
-      </div>
-
-      <!-- 2. HP WD & DP -->
-      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #3498db;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-          <span style="font-weight:600; color:#5dade2; font-size:15px;">💳 HP WD &amp; DP</span>
-          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">17 HP</strong></span>
-        </div>
-        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
-          <span>BCA : <strong style="color:#5dade2;">5</strong></span>
-          <span>Mandiri : <strong style="color:#5dade2;">4</strong></span>
-          <span>Maybank : <strong style="color:#5dade2;">1</strong></span>
-          <span>BNI : <strong style="color:#5dade2;">2</strong></span>
-          <span>BRI : <strong style="color:#5dade2;">5</strong></span>
-          <span>CIMB : <strong style="color:#5dade2;">0</strong></span>
-        </div>
-      </div>
-
-      <!-- 3. HP DEPO -->
-      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #2ecc71;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-          <span style="font-weight:600; color:#58d68d; font-size:15px;">📥 HP DEPO</span>
-          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">28 HP</strong></span>
-        </div>
-        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
-          <span>BCA : <strong style="color:#58d68d;">9</strong></span>
-          <span>BRI : <strong style="color:#58d68d;">8</strong></span>
-          <span>BNI : <strong style="color:#58d68d;">3</strong></span>
-          <span>Maybank : <strong style="color:#58d68d;">2</strong></span>
-          <span>Danamon : <strong style="color:#58d68d;">1</strong></span>
-          <span>Mandiri : <strong style="color:#58d68d;">4</strong></span>
-          <span>CIMB : <strong style="color:#58d68d;">1</strong></span>
-        </div>
-      </div>
-
-      <!-- 4. HP WD BERSIH & KOTOR -->
-      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #9b59b6;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-          <span style="font-weight:600; color:#af7ac5; font-size:15px;">🧹 HP WD BERSIH &amp; KOTOR</span>
-          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">77 HP</strong></span>
-        </div>
-        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
-          <span>BCA : <strong style="color:#af7ac5;">47</strong></span>
-          <span>BRI : <strong style="color:#af7ac5;">21</strong></span>
-          <span>BNI : <strong style="color:#af7ac5;">3</strong></span>
-          <span>Danamon : <strong style="color:#af7ac5;">2</strong></span>
-          <span>Mandiri : <strong style="color:#af7ac5;">3</strong></span>
-          <span>Maybank : <strong style="color:#af7ac5;">1</strong></span>
-        </div>
-      </div>
-
-      <!-- 5. DATA HP -->
-      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #1abc9c;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-          <span style="font-weight:600; color:#48c9b0; font-size:15px;">📊 DATA HP</span>
-          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">21 HP</strong></span>
-        </div>
-        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
-          <span>HP Baru : <strong style="color:#48c9b0;">10</strong></span>
-          <span>HP : <strong style="color:#48c9b0;">11</strong></span>
-        </div>
-      </div>
-
-      <!-- 6. HP BERMASALAH / OFF -->
-      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #e74c3c;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-          <span style="font-weight:600; color:#ec7063; font-size:15px;">⚠️ HP BERMASALAH / OFF</span>
-          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">21 HP</strong></span>
-        </div>
-        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
-          <span>Sisa HP Bermasalah/Off : <strong style="color:#ec7063;">21 HP</strong></span>
-        </div>
-      </div>
-
-      <!-- ===== RINGKASAN TOTAL ===== -->
-      <div style="background:#0f1a24; border-radius:12px; padding:16px 20px; margin-top:18px; border:1px solid #2a3a4e;">
-        <div style="font-weight:700; color:#ffffff; font-size:16px; margin-bottom:8px;">📌 RINGKASAN TOTAL</div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px 20px; color:#ccd7e4; font-size:14px;">
-          <span>HP Bank Kas : <strong style="color:#f39c12;">4 HP</strong></span>
-          <span>HP WD &amp; DP : <strong style="color:#5dade2;">17 HP</strong></span>
-          <span>HP Depo : <strong style="color:#58d68d;">28 HP</strong></span>
-          <span>HP WD Bersih &amp; Kotor : <strong style="color:#af7ac5;">77 HP</strong></span>
-          <span>HP Baru : <strong style="color:#48c9b0;">10 HP</strong></span>
-          <span>HP : <strong style="color:#48c9b0;">11 HP</strong></span>
-          <span>HP Bermasalah / Off : <strong style="color:#ec7063;">21 HP</strong></span>
-        </div>
-      </div>
-
+<!-- ===== APP ===== -->
+<div id="app" class="app hidden">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">O</div>
+      <div><b>OFFICE DATA</b><small>DATA CENTER</small></div>
     </div>
-    <!-- ===== END REKAP HP ===== -->
+    <button class="nav active" data-page="dashboard">▣ <span>Dashboard</span></button>
+    <button class="nav" data-page="history">◷ <span>Riwayat</span></button>
+    <button class="nav" id="usersNav" data-page="users">◎ <span>Users</span></button>
+    <button class="nav" data-page="settings">⚙ <span>Settings</span></button>
+    <button class="nav logout" id="logoutBtn">⇥ <span>Logout</span></button>
+  </aside>
 
-  </div>
-</section>
+  <!-- MAIN -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div>
+        <h2 id="pageTitle">Data Office</h2>
+        <span id="shiftText">SHIFT -</span>
+      </div>
+      <div class="profile">
+        <b id="userEmail">-</b>
+        <small id="userRole">-</small>
+      </div>
+    </header>
+
+    <!-- PAGE: DASHBOARD -->
+    <section id="dashboardPage" class="page">
+      <div class="shift-card">
+        <div>
+          <b>Shift Aktif: <span id="shiftName">-</span></b>
+          <small id="shiftInfo">-</small>
+        </div>
+        <button id="newShiftBtn" type="button">+ MULAI SHIFT BARU</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>WITHDRAW</small><b id="withdrawCount">0</b></div>
+        <div class="stat"><small>DEPO</small><b id="depoCount">0</b></div>
+        <div class="stat"><small>BANK KAS</small><b id="bankKasCount">0</b></div>
+        <div class="stat"><small>TOKEN</small><b id="tokenCount">0</b></div>
+      </div>
+      <div class="panel">
+        <div class="toolbar">
+          <input id="searchInput" placeholder="Cari bank / nama...">
+          <select id="checkFilter">
+            <option value="all">Semua</option>
+            <option value="unchecked">Belum Cek</option>
+            <option value="checked">Sudah Cek</option>
+          </select>
+          <button id="refreshBtn" type="button">↻ Refresh</button>
+        </div>
+        <div class="categories">
+          <button type="button" data-category="withdraw">BANK WITHDRAW</button>
+          <button type="button" data-category="depo">HP DEPO</button>
+          <button type="button" data-category="bankKas">HP BANK KAS</button>
+          <button type="button" data-category="token">TOKEN BCA</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>NO</th><th>BANK</th><th>NAMA</th><th>CHECK</th><th>ACTION</th></tr></thead>
+            <tbody id="dataTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: HISTORY -->
+    <section id="historyPage" class="page hidden">
+      <div class="panel">
+        <h3>Riwayat Edit & Pengecekan</h3>
+        <div id="historyTable"></div>
+      </div>
+    </section>
+
+    <!-- PAGE: USERS -->
+    <section id="usersPage" class="page hidden">
+      <div class="panel">
+        <h3>User Management</h3>
+        <div id="usersTable"></div>
+      </div>
+    </section>
+
+    <!-- ===== PAGE: SETTINGS (DIROMBAK) ===== -->
+    <section id="settingsPage" class="page hidden">
+      <div class="panel">
+        <h3>⚙️ Settings &amp; Data Rekap HP</h3>
+        <p style="margin-bottom:16px; color:#6a8aaa; font-size:14px;">Backend: Apps Script API. Data: Google Sheets.</p>
+
+        <!-- REKAP HP -->
+        <div class="rekap-container">
+
+          <div class="rekap-title">📱 REKAP JUMLAH HP</div>
+
+          <!-- 1. HP BANK KAS -->
+          <div class="rekap-card card-kas">
+            <div class="rekap-card-header">
+              <span class="label" style="color:#f1c40f;">🏦 HP BANK KAS</span>
+              <span class="total">TOTAL: <strong>4 HP</strong></span>
+            </div>
+            <div class="rekap-items">
+              <span>BANK BCA : <span class="num num-kas">2</span></span>
+              <span>BANK MANDIRI : <span class="num num-kas">2</span></span>
+            </div>
+          </div>
+
+          <!-- 2. HP WD & DP -->
+          <div class="rekap-card card-wd">
+            <div class="rekap-card-header">
+              <span class="label" style="color:#5dade2;">💳 HP WD &amp; DP</span>
+              <span class="total">TOTAL: <strong>17 HP</strong></span>
+            </div>
+            <div class="rekap-items">
+              <span>BANK BCA : <span class="num num-wd">5</span></span>
+              <span>BANK MANDIRI : <span class="num num-wd">4</span></span>
+              <span>WD MAYBANK : <span class="num num-wd">1</span></span>
+              <span>BANK BNI : <span class="num num-wd">2</span></span>
+              <span>BANK BRI : <span class="num num-wd">5</span></span>
+              <span>BANK CIMB : <span class="num num-wd">0</span></span>
+            </div>
+          </div>
+
+          <!-- 3. HP DEPO -->
+          <div class="rekap-card card-depo">
+            <div class="rekap-card-header">
+              <span class="label" style="color:#58d68d;">📥 HP DEPO</span>
+              <span class="total">TOTAL: <strong>28 HP</strong></span>
+            </div>
+            <div class="rekap-items">
+              <span>BANK BCA : <span class="num num-depo">9</span></span>
+              <span>BANK BRI : <span class="num num-depo">8</span></span>
+              <span>BANK BNI : <span class="num num-depo">3</span></span>
+              <span>BANK MAYBANK : <span class="num num-depo">2</span></span>
+              <span>BANK DANAMON : <span class="num num-depo">1</span></span>
+              <span>BANK MANDIRI : <span class="num num-depo">4</span></span>
+              <span>BANK CIMB : <span class="num num-depo">1</span></span>
+            </div>
+          </div>
+
+          <!-- 4. HP WD BERSIH & KOTOR -->
+          <div class="rekap-card card-bersih">
+            <div class="rekap-card-header">
+              <span class="label" style="color:#af7ac5;">🧹 HP WD BERSIH &amp; KOTOR</span>
+              <span class="total">TOTAL: <strong>77 HP</strong></span>
+            </div>
+            <div class="rekap-items">
+              <span>BANK BCA : <span class="num num-bersih">47</span></span>
+              <span>BANK BRI : <span class="num num-bersih">21</span></span>
+              <span>BANK BNI : <span class="num num-bersih">3</span></span>
+              <span>BANK DANAMON : <span class="num num-bersih">2</span></span>
+              <span>BANK MANDIRI : <span class="num num-bersih">3</span></span>
+              <span>BANK MAYBANK : <span class="num num-bersih">1</span></span>
+            </div>
+          </div>
+
+          <!-- 5. DATA HP -->
+          <div class="rekap-card card-data">
+            <div class="rekap-card-header">
+              <span class="label" style="color:#48c9b0;">📊 DATA HP</span>
+              <span class="total">TOTAL: <strong>21 HP</strong></span>
+            </div>
+            <div class="rekap-items">
+              <span>HP BARU : <span class="num num-data">10</span></span>
+              <span>HP : <span class="num num-data">11</span></span>
+            </div>
+          </div>
+
+          <!-- 6. HP BERMASALAH / OFF -->
+          <div class="rekap-card card-bermasalah">
+            <div class="rekap-card-header">
+              <span class="label" style="color:#ec7063;">⚠️ HP BERMASALAH / OFF</span>
+              <span class="total">TOTAL: <strong>21 HP</strong></span>
+            </div>
+            <div class="rekap-items">
+              <span>SISA HP BERMASALAH/OFF : <span class="num num-bermasalah">21 HP</span></span>
+            </div>
+          </div>
+
+          <!-- RINGKASAN TOTAL -->
+          <div class="rekap-ringkasan">
+            <div class="ringkasan-title">📌 RINGKASAN TOTAL</div>
+            <div class="grid">
+              <span>HP BANK KAS : <strong style="color:#f39c12;">4 HP</strong></span>
+              <span>HP WD &amp; DP : <strong style="color:#5dade2;">17 HP</strong></span>
+              <span>HP DEPO : <strong style="color:#58d68d;">28 HP</strong></span>
+              <span>HP WD BERSIH &amp; KOTOR : <strong style="color:#af7ac5;">77 HP</strong></span>
+              <span>HP BARU : <strong style="color:#48c9b0;">10 HP</strong></span>
+              <span>HP : <strong style="color:#48c9b0;">11 HP</strong></span>
+              <span>HP BERMASALAH / OFF : <strong style="color:#ec7063;">21 HP</strong></span>
+            </div>
+          </div>
+
+        </div>
+        <!-- END REKAP HP -->
+
+      </div>
+    </section>
+    <!-- END SETTINGS PAGE -->
+
+  </main>
+</div>
+
+<!-- LOADING & TOAST -->
+<div id="loading" class="loading hidden"><div class="spinner"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+  // ============================================================
+  // SIMULASI APPS SCRIPT
+  // ============================================================
+
+  // Data dummy untuk login & users
+  const dummyUsers = [
+    { email: 'admin@office.com', role: 'Admin' },
+    { email: 'user@office.com', role: 'User' },
+    { email: 'manager@office.com', role: 'Manager' }
+  ];
+
+  // Data dummy untuk dashboard
+  let dummyData = [
+    { id: 1, bank: 'BCA', nama: 'Andi', category: 'withdraw', checked: false },
+    { id: 2, bank: 'Mandiri', nama: 'Budi', category: 'depo', checked: true },
+    { id: 3, bank: 'BNI', nama: 'Citra', category: 'bankKas', checked: false },
+    { id: 4, bank: 'BRI', nama: 'Dewi', category: 'token', checked: false },
+    { id: 5, bank: 'BCA', nama: 'Eko', category: 'withdraw', checked: true },
+    { id: 6, bank: 'Mandiri', nama: 'Fitri', category: 'depo', checked: false },
+    { id: 7, bank: 'BNI', nama: 'Gilang', category: 'bankKas', checked: false },
+    { id: 8, bank: 'BRI', nama: 'Hani', category: 'token', checked: true },
+  ];
+
+  let currentUser = null;
+  let currentPage = 'dashboard';
+  let currentCategory = 'withdraw';
+
+  // ============================================================
+  // DOM REFS
+  // ============================================================
+  const $ = id => document.getElementById(id);
+  const loginScreen = $('loginScreen');
+  const app = $('app');
+  const loginEmail = $('loginEmail');
+  const loginBtn = $('loginBtn');
+  const loginStatus = $('loginStatus');
+  const logoutBtn = $('logoutBtn');
+  const userEmail = $('userEmail');
+  const userRole = $('userRole');
+  const pageTitle = $('pageTitle');
+  const shiftText = $('shiftText');
+  const shiftName = $('shiftName');
+  const shiftInfo = $('shiftInfo');
+  const dataTable = $('dataTable');
+  const searchInput = $('searchInput');
+  const checkFilter = $('checkFilter');
+  const refreshBtn = $('refreshBtn');
+  const loading = $('loading');
+  const toast = $('toast');
+  const withdrawCount = $('withdrawCount');
+  const depoCount = $('depoCount');
+  const bankKasCount = $('bankKasCount');
+  const tokenCount = $('tokenCount');
+
+  // ============================================================
+  // UTILITY
+  // ============================================================
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._hide);
+    toast._hide = setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function showLoading(show) {
+    loading.classList.toggle('hidden', !show);
+  }
+
+  function getCategoryLabel(cat) {
+    const map = { withdraw: 'BANK WITHDRAW', depo: 'HP DEPO', bankKas: 'HP BANK KAS', token: 'TOKEN BCA' };
+    return map[cat] || cat;
+  }
+
+  // ============================================================
+  // AUTH
+  // ============================================================
+  function doLogin() {
+    const email = loginEmail.value.trim();
+    if (!email) { loginStatus.textContent = 'Masukkan email terlebih dahulu.'; return; }
+    const found = dummyUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!found) {
+      loginStatus.textContent = 'Email tidak terdaftar.';
+      return;
+    }
+    currentUser = found;
+    loginStatus.textContent = '';
+    loginScreen.classList.add('hidden');
+    app.classList.remove('hidden');
+    userEmail.textContent = currentUser.email;
+    userRole.textContent = currentUser.role;
+    // Sembunyikan Users jika bukan Admin
+    const usersNav = $('usersNav');
+    if (currentUser.role !== 'Admin') {
+      usersNav.style.display = 'none';
+    } else {
+      usersNav.style.display = 'flex';
+    }
+    renderDashboard();
+    showToast('Login berhasil!');
+  }
+
+  function doLogout() {
+    currentUser = null;
+    app.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    loginEmail.value = '';
+    loginStatus.textContent = '';
+    showToast('Logout berhasil.');
+  }
+
+  loginBtn.addEventListener('click', doLogin);
+  loginEmail.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  logoutBtn.addEventListener('click', doLogout);
+
+  // ============================================================
+  // NAVIGATION
+  // ============================================================
+  document.querySelectorAll('.nav[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const page = btn.dataset.page;
+      navigateTo(page);
+    });
+  });
+
+  function navigateTo(page) {
+    currentPage = page;
+    // Update nav
+    document.querySelectorAll('.nav[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    // Update pages
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    const target = document.getElementById(page + 'Page');
+    if (target) target.classList.remove('hidden');
+
+    // Update title
+    const titles = { dashboard: 'Data Office', history: 'Riwayat', users: 'User Management', settings: 'Settings' };
+    pageTitle.textContent = titles[page] || 'Office Data';
+
+    // Render content
+    if (page === 'dashboard') renderDashboard();
+    else if (page === 'history') renderHistory();
+    else if (page === 'users') renderUsers();
+    // settings already static
+  }
+
+  // ============================================================
+  // DASHBOARD
+  // ============================================================
+  function renderDashboard() {
+    // Count stats
+    const all = dummyData;
+    withdrawCount.textContent = all.filter(d => d.category === 'withdraw').length;
+    depoCount.textContent = all.filter(d => d.category === 'depo').length;
+    bankKasCount.textContent = all.filter(d => d.category === 'bankKas').length;
+    tokenCount.textContent = all.filter(d => d.category === 'token').length;
+
+    // Shift dummy
+    shiftName.textContent = 'SHIFT-001 (Aktif)';
+    shiftInfo.textContent = 'Dimulai: 20/08/2026 09:00 | Admin: ' + (currentUser ? currentUser.email : '-');
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const search = searchInput.value.toLowerCase().trim();
+    const filter = checkFilter.value;
+    let data = dummyData.filter(d => d.category === currentCategory);
+
+    // Search
+    if (search) {
+      data = data.filter(d => d.bank.toLowerCase().includes(search) || d.nama.toLowerCase().includes(search));
+    }
+    // Filter check
+    if (filter === 'checked') data = data.filter(d => d.checked);
+    else if (filter === 'unchecked') data = data.filter(d => !d.checked);
+
+    if (data.length === 0) {
+      dataTable.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#6a8aaa;padding:30px;">Tidak ada data</td></tr>`;
+      return;
+    }
+
+    let html = '';
+    data.forEach((d, i) => {
+      const checked = d.checked;
+      html += `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${d.bank}</strong></td>
+          <td>${d.nama}</td>
+          <td><span class="badge ${checked ? 'badge-success' : 'badge-warning'}">${checked ? '✓ Sudah Cek' : '○ Belum Cek'}</span></td>
+          <td>
+            <button class="btn-check ${checked ? 'checked' : 'unchecked'}" data-id="${d.id}">
+              ${checked ? '✓ Tandai Belum' : '☐ Tandai Sudah'}
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+    dataTable.innerHTML = html;
+
+    // Event listener untuk tombol check
+    dataTable.querySelectorAll('.btn-check').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = parseInt(this.dataset.id);
+        const item = dummyData.find(d => d.id === id);
+        if (item) {
+          item.checked = !item.checked;
+          renderTable();
+          renderDashboard();
+          showToast(`Data ${item.nama} ${item.checked ? 'sudah' : 'belum'} di cek.`);
+        }
+      });
+    });
+  }
+
+  // Event: category buttons
+  document.querySelectorAll('.categories button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.categories button').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentCategory = this.dataset.category;
+      renderTable();
+    });
+  });
+  // Set active default
+  document.querySelector('.categories button[data-category="withdraw"]')?.classList.add('active');
+
+  // Search & filter
+  searchInput.addEventListener('input', renderTable);
+  checkFilter.addEventListener('change', renderTable);
+  refreshBtn.addEventListener('click', () => { renderDashboard(); showToast('Data diperbarui.'); });
+
+  // New Shift
+  $('newShiftBtn').addEventListener('click', () => {
+    showToast('Shift baru dimulai! (Simulasi)');
+    shiftName.textContent = 'SHIFT-002 (Aktif)';
+  });
+
+  // ============================================================
+  // HISTORY
+  // ============================================================
+  function renderHistory() {
+    const container = $('historyTable');
+    const historyData = [
+      { time: '20/08/2026 10:15', user: 'admin@office.com', action: 'Menandai "Andi" (BCA) sebagai Sudah Cek' },
+      { time: '20/08/2026 09:45', user: 'user@office.com', action: 'Menambahkan data baru: "Gilang" (BNI)' },
+      { time: '20/08/2026 09:10', user: 'admin@office.com', action: 'Memulai shift SHIFT-001' },
+    ];
+    let html = `<div style="overflow-x:auto;">`;
+    html += `<table><thead><tr><th>WAKTU</th><th>USER</th><th>AKSI</th></tr></thead><tbody>`;
+    historyData.forEach(h => {
+      html += `<tr><td>${h.time}</td><td>${h.user}</td><td>${h.action}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+  }
+
+  // ============================================================
+  // USERS
+  // ============================================================
+  function renderUsers() {
+    const container = $('usersTable');
+    let html = `<div style="overflow-x:auto;">`;
+    html += `<table><thead><tr><th>EMAIL</th><th>ROLE</th><th>STATUS</th></tr></thead><tbody>`;
+    dummyUsers.forEach(u => {
+      const isActive = currentUser && currentUser.email === u.email;
+      html += `<tr>
+        <td><strong>${u.email}</strong> ${isActive ? '🟢' : ''}</td>
+        <td><span class="badge badge-success">${u.role}</span></td>
+        <td>${isActive ? 'Aktif' : 'Online'}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+  }
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  // Tampilkan login jika belum login
+  // Untuk demo, kita tampilkan login dulu
+  // Jika ingin auto-login, uncomment di bawah:
+  // loginEmail.value = 'admin@office.com';
+  // doLogin();
+</script>
+
+</body>
 </html>
