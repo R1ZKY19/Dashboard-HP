@@ -77,7 +77,21 @@ button{transition:all .18s ease}
   font-weight:800;
 }
 
-.logo{width:74px;height:74px;border-radius:22px;margin:auto;font-size:28px}
+.logo{
+  width:74px;
+  height:74px;
+  border-radius:22px;
+  margin:auto;
+  font-size:28px;
+  padding:6px;
+}
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  border-radius:8px;
+}
+
 .login-card h1{font-family:Manrope,Inter,sans-serif;font-size:27px;letter-spacing:-.7px;margin:24px 0 7px}
 .login-card p{color:var(--muted);font-size:12px;margin:0 0 26px}
 .login-card small{display:block;color:var(--muted-2);margin-top:14px;font-size:10px;line-height:1.5}
@@ -128,7 +142,20 @@ button{transition:all .18s ease}
 }
 
 .brand{display:flex;align-items:center;gap:11px;padding:5px 9px 27px}
-.brand-logo{width:42px;height:42px;border-radius:13px;font-size:16px;box-shadow:0 8px 20px rgba(63,122,232,.2)}
+.brand-logo{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  font-size:16px;
+  box-shadow:0 8px 20px rgba(63,122,232,.2);
+  padding:4px;
+}
+.brand-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  border-radius:8px;
+}
 .brand b{display:block;font-family:Manrope,Inter,sans-serif;font-size:12px;letter-spacing:.35px}
 .brand small{display:block;color:var(--muted-2);font-size:8px;letter-spacing:1.2px;margin-top:4px}
 
