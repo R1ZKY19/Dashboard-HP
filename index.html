@@ -21,7 +21,7 @@
       <input id="loginEmail" class="login-input" type="email" autocomplete="email" placeholder="Masukkan email" />
       <input id="loginPassword" class="login-input" type="password" autocomplete="current-password" placeholder="Masukkan password" />
       <button id="loginBtn" type="button">MASUK</button>
-      <small>Email harus terdaftar di Users. Login pertama kali: password yang kamu ketik akan jadi password akunmu seterusnya.</small>
+      <small>Email harus terdaftar di Users. Login pertama kali pakai password "1", lalu ganti sendiri di menu Settings.</small>
       <div id="loginStatus" class="login-status"></div>
     </div>
   </div>
@@ -49,7 +49,10 @@
           <span id="shiftText">SHIFT -</span>
           <div id="onlineUsers" class="online-users"></div>
         </div>
-        <div class="profile"><b id="userEmail">-</b><small id="userRole">-</small></div>
+        <div class="topbar-right">
+          <button id="themeToggleBtn" type="button" class="theme-toggle" title="Ganti tema terang/gelap">🌙</button>
+          <div class="profile"><b id="userEmail">-</b><small id="userRole">-</small></div>
+        </div>
       </header>
 
       <!-- DASHBOARD -->
@@ -127,6 +130,19 @@
   <!-- LOADING & TOAST -->
   <div id="loading" class="loading hidden"><div class="spinner"></div></div>
   <div id="toast" class="toast"></div>
+
+  <!-- SHIFT PICKER (muncul begitu dashboard dibuka, biar shift tidak salah) -->
+  <div id="shiftPickerModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3>Pilih Shift Sekarang</h3>
+      <p>Shift aktif saat ini: <b id="shiftPickerCurrent">-</b></p>
+      <div class="shift-picker-actions">
+        <button id="shiftPickerPagi" type="button" class="shift-btn pagi">🌅 Shift Pagi</button>
+        <button id="shiftPickerMalam" type="button" class="shift-btn malam">🌙 Shift Malam</button>
+      </div>
+      <button id="shiftPickerSkip" type="button" class="modal-skip">Lanjutkan tanpa ganti shift</button>
+    </div>
+  </div>
 
   <script src="config.js?v=20260819-4"></script>
   <script src="app.js?v=20260819-4"></script>

@@ -18,6 +18,23 @@
 const ROLE_OPTIONS=["SUPER MASTER","LEADER","CS","KAPTEN","KASIR"];
 const MANAGE_ROLES=["SUPER MASTER","LEADER"];
 
+// ===== TEMA TERANG / GELAP =====
+function initTheme(){
+  const saved=localStorage.getItem("office_theme");
+  if(saved==="dark")document.body.classList.add("dark");
+  updateThemeIcon();
+}
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  localStorage.setItem("office_theme",document.body.classList.contains("dark")?"dark":"light");
+  updateThemeIcon();
+}
+function updateThemeIcon(){
+  const btn=document.getElementById("themeToggleBtn");
+  if(btn)btn.textContent=document.body.classList.contains("dark")?"☀":"🌙";
+}
+initTheme();
+
 let dashboard=null;
 let currentCategory="withdraw";
 let sessionToken=localStorage.getItem(CONFIG.SESSION_KEY)||"";
@@ -93,6 +110,7 @@ async function init(){
     startHeartbeat();
     // Render settings jika sudah ada data
     renderSettings();
+    showShiftPicker();
   }catch(e){
     clearSession();showLogin();setLoginStatus(e.message);
   }finally{hideLoading();}
@@ -110,6 +128,18 @@ function startHeartbeat(){
   },HEARTBEAT_INTERVAL);
 }
 function stopHeartbeat(){if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null;}}
+
+// ===== SHIFT PICKER: muncul begitu dashboard dibuka biar shift tidak salah =====
+function showShiftPicker(){
+  const myRole=String(dashboard?.user?.role||"").toUpperCase();
+  if(!MANAGE_ROLES.includes(myRole))return; // hanya yang boleh atur shift yang ditanya
+  const modal=document.getElementById("shiftPickerModal");
+  if(!modal)return;
+  const cur=document.getElementById("shiftPickerCurrent");
+  if(cur)cur.textContent=dashboard?.shift?.shift||"-";
+  modal.classList.remove("hidden");
+}
+function hideShiftPicker(){document.getElementById("shiftPickerModal")?.classList.add("hidden")}
 
 function renderOnline(){
   const el=document.getElementById("onlineUsers");
@@ -141,6 +171,16 @@ function bindEvents(){
 
   const changePw=document.getElementById("changePasswordBtn");
   if(changePw) changePw.onclick=submitChangePassword;
+
+  const themeBtn=document.getElementById("themeToggleBtn");
+  if(themeBtn) themeBtn.onclick=toggleTheme;
+
+  const pickerPagi=document.getElementById("shiftPickerPagi");
+  const pickerMalam=document.getElementById("shiftPickerMalam");
+  const pickerSkip=document.getElementById("shiftPickerSkip");
+  if(pickerPagi) pickerPagi.onclick=()=>{hideShiftPicker();startShiftWithName("SHIFT PAGI");};
+  if(pickerMalam) pickerMalam.onclick=()=>{hideShiftPicker();startShiftWithName("SHIFT MALAM");};
+  if(pickerSkip) pickerSkip.onclick=hideShiftPicker;
 }
 
 async function submitChangePassword(){
@@ -347,6 +387,7 @@ async function startLogin(){
     renderUser();renderStats();renderTable();renderOnline();
     renderSettings();
     setLoginStatus("");
+    showShiftPicker();
   }catch(e){clearSession();showLogin();setLoginStatus(e.message)}finally{hideLoading()}
 }
 
