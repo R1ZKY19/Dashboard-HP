@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Office Data Center</title>
-  <link rel="stylesheet" href="style.css?v=20260819-4" />
+  <link rel="stylesheet" href="style.css?v=20260820-1" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -57,6 +57,18 @@
 
       <!-- DASHBOARD -->
       <section id="dashboardPage" class="page">
+        <!-- SHIFT PICKER: muncul di atas kartu shift begitu dashboard dibuka -->
+        <div id="shiftPickerBanner" class="shift-picker-banner hidden">
+          <div class="shift-picker-text">
+            <b>Pilih shift sekarang</b>
+            <small>Shift aktif saat ini: <span id="shiftPickerCurrent">-</span></small>
+          </div>
+          <div class="shift-picker-actions">
+            <button id="shiftPickerPagi" type="button" class="shift-btn pagi">🌅 Shift Pagi</button>
+            <button id="shiftPickerMalam" type="button" class="shift-btn malam">🌙 Shift Malam</button>
+            <button id="shiftPickerSkip" type="button" class="modal-skip">Tutup</button>
+          </div>
+        </div>
         <div class="shift-card">
           <div class="shift-info">
             <b>Shift Aktif: <span id="shiftName">-</span></b>
@@ -131,20 +143,7 @@
   <div id="loading" class="loading hidden"><div class="spinner"></div></div>
   <div id="toast" class="toast"></div>
 
-  <!-- SHIFT PICKER (muncul begitu dashboard dibuka, biar shift tidak salah) -->
-  <div id="shiftPickerModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <h3>Pilih Shift Sekarang</h3>
-      <p>Shift aktif saat ini: <b id="shiftPickerCurrent">-</b></p>
-      <div class="shift-picker-actions">
-        <button id="shiftPickerPagi" type="button" class="shift-btn pagi">🌅 Shift Pagi</button>
-        <button id="shiftPickerMalam" type="button" class="shift-btn malam">🌙 Shift Malam</button>
-      </div>
-      <button id="shiftPickerSkip" type="button" class="modal-skip">Lanjutkan tanpa ganti shift</button>
-    </div>
-  </div>
-
-  <script src="config.js?v=20260819-4"></script>
-  <script src="app.js?v=20260819-4"></script>
+  <script src="config.js?v=20260820-1"></script>
+  <script src="app.js?v=20260820-1"></script>
 </body>
 </html>

@@ -129,17 +129,17 @@ function startHeartbeat(){
 }
 function stopHeartbeat(){if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null;}}
 
-// ===== SHIFT PICKER: muncul begitu dashboard dibuka biar shift tidak salah =====
+// ===== SHIFT PICKER: muncul di atas kartu shift begitu dashboard dibuka =====
 function showShiftPicker(){
   const myRole=String(dashboard?.user?.role||"").toUpperCase();
   if(!MANAGE_ROLES.includes(myRole))return; // hanya yang boleh atur shift yang ditanya
-  const modal=document.getElementById("shiftPickerModal");
-  if(!modal)return;
+  const banner=document.getElementById("shiftPickerBanner");
+  if(!banner)return;
   const cur=document.getElementById("shiftPickerCurrent");
   if(cur)cur.textContent=dashboard?.shift?.shift||"-";
-  modal.classList.remove("hidden");
+  banner.classList.remove("hidden");
 }
-function hideShiftPicker(){document.getElementById("shiftPickerModal")?.classList.add("hidden")}
+function hideShiftPicker(){document.getElementById("shiftPickerBanner")?.classList.add("hidden")}
 
 function renderOnline(){
   const el=document.getElementById("onlineUsers");
@@ -490,8 +490,39 @@ async function loadHistory(){
   try{
     showLoading();
     const rows=await api("getHistory");
-    document.getElementById("historyTable").innerHTML=`<div class="history-table"><table class="mini-table"><thead><tr><th>Waktu</th><th>Email</th><th>Action</th><th>Shift</th><th>Cell</th><th>Item</th><th>Old</th><th>New</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.timestamp)}</td><td>${esc(x.email)}</td><td>${esc(x.action)}</td><td>${esc(x.shift)}</td><td>${esc(x.cell)}</td><td>${esc(x.item)}</td><td>${esc(x.oldValue)}</td><td>${esc(x.newValue)}</td></tr>`).join("")}</tbody></table></div>`;
+    renderHistoryGrouped(rows);
   }catch(e){showToast(e.message)}finally{hideLoading()}
+}
+
+// Baris audit (terbaru dulu) dikelompokkan per blok shift yang sama (baris dengan shift
+// sama selalu berurutan karena ditulis dari nilai shift aktif saat itu). Yang ditonjolkan
+// hanya aktivitas cek/uncek per staf, biar tidak perlu baca ratusan baris satu-satu.
+function renderHistoryGrouped(rows){
+  const container=document.getElementById("historyTable");
+  if(!container)return;
+  if(!rows||!rows.length){container.innerHTML='<p class="history-item muted">Belum ada riwayat.</p>';return;}
+
+  const groups=[];
+  rows.forEach(r=>{
+    const last=groups[groups.length-1];
+    if(!last||last.shift!==r.shift) groups.push({shift:r.shift,rows:[r]});
+    else last.rows.push(r);
+  });
+
+  container.innerHTML=groups.map(g=>{
+    const starter=g.rows.find(r=>r.action==="NEW_SHIFT");
+    const boundaryInfo=starter
+      ?`Mulai ${esc(starter.timestamp)} • oleh ${esc(starter.email)}`
+      :`Hingga ${esc(g.rows[g.rows.length-1].timestamp)}`;
+    const checks=g.rows.filter(r=>r.action==="CHECK"||r.action==="UNCHECK");
+    const items=checks.length
+      ?checks.map(r=>`<div class="history-item"><b>${esc(r.timestamp)}</b> — ${esc(r.email)} ${r.action==="CHECK"?"mencentang":"membatalkan cek"} <b>${esc(r.item)}</b></div>`).join("")
+      :'<div class="history-item muted">Tidak ada aktivitas cek di shift ini.</div>';
+    return `<div class="history-group">
+      <div class="history-group-header"><b>${esc(g.shift||"-")}</b><small>${boundaryInfo} • ${checks.length} kali cek</small></div>
+      <div class="history-group-body">${items}</div>
+    </div>`;
+  }).join("");
 }
 async function loadUsers(){
   try{

@@ -810,30 +810,57 @@ body.dark .login-screen{background:linear-gradient(160deg,#0f1620,#0a0f16)}
 body.dark .theme-toggle{background:var(--panel-2);color:var(--text)}
 body.dark #shiftText{background:var(--panel-2)}
 body.dark .online-user{color:var(--text)}
-body.dark .modal-card{background:var(--panel)}
 
-/* ===== SHIFT PICKER MODAL ===== */
-.modal-overlay{
-  position:fixed;inset:0;
-  background:rgba(8,12,18,.55);
-  display:flex;align-items:center;justify-content:center;
-  z-index:200;padding:20px;
+/* ===== SHIFT PICKER BANNER (di atas kartu shift) ===== */
+.shift-picker-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-radius:16px;
+  padding:16px 20px;
+  margin-bottom:16px;
+  box-shadow:0 8px 20px rgba(43,107,156,.25);
 }
-.modal-card{
-  background:var(--panel);
-  border-radius:18px;
-  padding:28px 26px;
-  max-width:380px;width:100%;
-  box-shadow:var(--shadow);
-  text-align:center;
-}
-.modal-card h3{margin:0 0 8px;font-family:Manrope,Inter,sans-serif;color:var(--text);font-size:19px}
-.modal-card p{margin:0 0 18px;color:var(--muted);font-size:12px}
-.modal-card p b{color:var(--accent)}
-.shift-picker-actions{display:flex;gap:10px;margin-bottom:14px}
-.shift-picker-actions .shift-btn{flex:1}
+.shift-picker-text b{display:block;color:#fff;font-size:14px;font-family:Manrope,Inter,sans-serif}
+.shift-picker-text small{display:block;color:rgba(255,255,255,.8);font-size:11px;margin-top:3px}
+.shift-picker-banner .shift-picker-actions{display:flex;gap:8px;flex-wrap:wrap}
+.shift-picker-banner .shift-btn{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff}
+.shift-picker-banner .shift-btn:hover{background:rgba(255,255,255,.25)}
 .modal-skip{
   background:none;border:none;
-  color:var(--muted);font-size:11px;
+  color:rgba(255,255,255,.85);font-size:11px;
   text-decoration:underline;padding:6px;
 }
+
+/* ===== RIWAYAT DIKELOMPOKKAN PER SHIFT ===== */
+.history-group{
+  border:1px solid var(--border);
+  border-radius:14px;
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.history-group-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:6px;
+  padding:12px 16px;
+  background:var(--panel-2);
+  border-bottom:1px solid var(--border);
+}
+.history-group-header b{color:var(--text);font-size:13px}
+.history-group-header small{color:var(--muted);font-size:10px}
+.history-group-body{padding:6px 16px}
+.history-item{
+  padding:8px 0;
+  border-bottom:1px solid var(--border-soft);
+  font-size:12px;
+  color:var(--text);
+}
+.history-item:last-child{border-bottom:none}
+.history-item b{color:var(--accent)}
+.history-item.muted{color:var(--muted-2);font-style:italic}
