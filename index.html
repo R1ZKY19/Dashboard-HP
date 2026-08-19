@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Member Monitor Pro - Sistem Monitoring & Pengecekan Member</title>
+  <title>Office Data Center - Monitoring Kelengkapan HP & Perangkat</title>
   
-  <!-- Fonts -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   
-  <!-- Icons -->
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20260819_v2">
+  <link rel="stylesheet" href="style.css?v=20260819_v3">
 </head>
 <body class="dark-theme">
 
@@ -26,56 +26,47 @@
         <div class="brand-logo-container">
           <img id="loginLogoImg" src="logo.png" alt="Logo" class="main-logo-img" onerror="this.style.display='none'; document.getElementById('loginLogoFallback').style.display='flex';">
           <div id="loginLogoFallback" class="brand-logo-fallback">
-            <i class="fa-solid fa-shield-halved"></i>
+            <i class="fa-solid fa-mobile-screen-button"></i>
           </div>
         </div>
-        <h1 class="brand-title">MEMBER MONITOR</h1>
-        <p class="brand-tagline">Sistem Cepat & Real-Time Monitoring Member</p>
+        <h1 class="brand-title">OFFICE DATA CENTER</h1>
+        <p class="brand-tagline">Monitoring & Pengecekan Kelengkapan HP Office</p>
       </div>
 
       <form id="loginForm" class="login-form" onsubmit="return false;">
         <div class="form-group">
-          <label for="loginUsername"><i class="fa-regular fa-user"></i> Username / Email</label>
+          <label for="loginEmail"><i class="fa-regular fa-envelope"></i> Email / Username Petugas</label>
           <div class="input-with-icon">
-            <input type="text" id="loginUsername" class="custom-input" placeholder="Masukkan username / email" autocomplete="username" required>
+            <input type="text" id="loginEmail" class="custom-input" placeholder="Masukkan email terdaftar pada Users" autocomplete="email" required>
           </div>
+          <small class="text-dim" style="font-size: 11px; margin-top: 4px; display: block;">*Gunakan email yang terdaftar di Sheet Users.</small>
         </div>
 
-        <div class="form-group">
-          <label for="loginPassword"><i class="fa-solid fa-lock"></i> Password</label>
-          <div class="input-with-icon">
-            <input type="password" id="loginPassword" class="custom-input" placeholder="Masukkan password" autocomplete="current-password" required>
-            <button type="button" class="btn-toggle-pwd" id="togglePasswordBtn" title="Lihat password">
-              <i class="fa-regular fa-eye"></i>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" id="loginSubmitBtn" class="btn-primary-gradient w-100">
+        <button type="submit" id="loginSubmitBtn" class="btn-primary-gradient w-100 mt-2">
           <span class="btn-text"><i class="fa-solid fa-arrow-right-to-bracket"></i> MASUK DASHBOARD</span>
           <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Memverifikasi...</span>
         </button>
 
         <div id="loginAlert" class="alert-box alert-danger hidden">
           <i class="fa-solid fa-circle-exclamation"></i>
-          <span id="loginAlertText">Username atau password salah</span>
+          <span id="loginAlertText">Email tidak terdaftar atau tidak aktif</span>
         </div>
 
-        <!-- Quick Demo Switcher (Bisa digunakan untuk testing 5 level akses) -->
+        <!-- Quick Demo Switcher (5 Level Akses) -->
         <div class="demo-accounts-box">
-          <div class="demo-title"><i class="fa-solid fa-key"></i> Akun Uji Coba Cepat (5 Level Akses):</div>
+          <div class="demo-title"><i class="fa-solid fa-bolt"></i> Login Cepat (5 Level Akses):</div>
           <div class="demo-badges">
-            <button type="button" class="demo-btn" onclick="fillLogin('supermaster', 'admin123')"><span class="badge-role super-master">SUPER MASTER</span></button>
-            <button type="button" class="demo-btn" onclick="fillLogin('leader_ops', 'leader123')"><span class="badge-role leader">LEADER</span></button>
-            <button type="button" class="demo-btn" onclick="fillLogin('cs_support', 'cs123')"><span class="badge-role cs">CS</span></button>
-            <button type="button" class="demo-btn" onclick="fillLogin('kapten_ops', 'kapten123')"><span class="badge-role kapten">KAPTEN</span></button>
-            <button type="button" class="demo-btn" onclick="fillLogin('kasir_bank', 'kasir123')"><span class="badge-role kasir">KASIR</span></button>
+            <button type="button" class="demo-btn" onclick="quickFillEmail('rizkykucuk19@gmail.com')"><span class="badge-role super-master">SUPER MASTER</span></button>
+            <button type="button" class="demo-btn" onclick="quickFillEmail('leader@office.local')"><span class="badge-role leader">LEADER</span></button>
+            <button type="button" class="demo-btn" onclick="quickFillEmail('cs@office.local')"><span class="badge-role cs">CS</span></button>
+            <button type="button" class="demo-btn" onclick="quickFillEmail('kapten@office.local')"><span class="badge-role kapten">KAPTEN</span></button>
+            <button type="button" class="demo-btn" onclick="quickFillEmail('kasir@office.local')"><span class="badge-role kasir">KASIR</span></button>
           </div>
         </div>
       </form>
       
       <div class="login-footer">
-        <span><i class="fa-solid fa-shield-check"></i> Enkripsi End-to-End & Role-Based Access</span>
+        <span><i class="fa-solid fa-shield-check"></i> Terhubung langsung ke Google Sheets (DATA BANK)</span>
       </div>
     </div>
   </div>
@@ -93,12 +84,12 @@
           <div class="brand-logo-container mini">
             <img id="sidebarLogoImg" src="logo.png" alt="Logo" class="main-logo-img mini" onerror="this.style.display='none'; document.getElementById('sidebarLogoFallback').style.display='flex';">
             <div id="sidebarLogoFallback" class="brand-logo-fallback mini">
-              <i class="fa-solid fa-shield-halved"></i>
+              <i class="fa-solid fa-mobile-screen-button"></i>
             </div>
           </div>
           <div class="brand-text-wrap">
-            <span class="brand-name">MEMBER PRO</span>
-            <span class="brand-desc">Data & Monitoring</span>
+            <span class="brand-name">OFFICE DATA</span>
+            <span class="brand-desc">Data Center & HP Monitor</span>
           </div>
         </div>
         <button id="closeSidebarBtn" class="btn-icon-only mobile-only" title="Tutup Menu">
@@ -119,34 +110,29 @@
 
       <!-- Navigation Links -->
       <nav class="sidebar-nav">
-        <div class="nav-section-title">MENU UTAMA</div>
+        <div class="nav-section-title">MONITORING KELENGKAPAN</div>
         
-        <button type="button" class="nav-link active" data-page="overview" id="navOverview">
-          <i class="fa-solid fa-chart-pie"></i>
-          <span class="nav-text">Ringkasan</span>
-        </button>
-
-        <button type="button" class="nav-link" data-page="members" id="navMembers">
-          <i class="fa-solid fa-users-viewfinder"></i>
-          <span class="nav-text">Monitoring Member</span>
+        <button type="button" class="nav-link active" data-page="monitoring" id="navMonitoring">
+          <i class="fa-solid fa-mobile-screen"></i>
+          <span class="nav-text">Cek Kelengkapan HP</span>
           <span class="nav-badge" id="navUncheckedCount">0</span>
         </button>
 
-        <button type="button" class="nav-link" data-page="transactions" id="navTransactions">
-          <i class="fa-solid fa-cash-register"></i>
-          <span class="nav-text">Data Kasir & Transaksi</span>
+        <button type="button" class="nav-link" data-page="overview" id="navOverview">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="nav-text">Ringkasan & Statistik</span>
         </button>
 
         <div class="nav-section-title" id="navSectionAdmin">MANAJEMEN & AUDIT</div>
 
         <button type="button" class="nav-link" data-page="users" id="navUsers">
-          <i class="fa-solid fa-user-gear"></i>
+          <i class="fa-solid fa-users-gear"></i>
           <span class="nav-text">Kelola User & Role</span>
         </button>
 
         <button type="button" class="nav-link" data-page="logs" id="navLogs">
           <i class="fa-solid fa-clipboard-list"></i>
-          <span class="nav-text">Log Aktivitas</span>
+          <span class="nav-text">Log Aktivitas Pengecekan</span>
         </button>
 
         <button type="button" class="nav-link" data-page="settings" id="navSettings">
@@ -173,18 +159,17 @@
             <i class="fa-solid fa-bars-staggered"></i>
           </button>
           <div class="page-title-wrap">
-            <h2 id="currentPageTitle">Monitoring Member</h2>
-            <p id="currentPageSubtitle" class="page-subtitle">Pengecekan data member secara cepat dan akurat</p>
+            <h2 id="currentPageTitle">Monitoring Kelengkapan HP Office</h2>
+            <p id="currentPageSubtitle" class="page-subtitle">Verifikasi kelengkapan HP Withdraw, Depo, Bank Kas & Token BCA</p>
           </div>
         </div>
 
         <div class="topbar-right">
           <!-- Real-Time Online Presence -->
-          <div class="presence-widget" id="onlinePresenceWidget" title="User yang sedang aktif">
+          <div class="presence-widget" id="onlinePresenceWidget" title="Staf yang sedang aktif">
             <span class="online-indicator-dot"></span>
             <span class="presence-label">Online:</span>
             <div id="onlineUsersList" class="online-users-tags">
-              <!-- Rendered via JS -->
               <span class="user-chip">Memuat...</span>
             </div>
           </div>
@@ -209,108 +194,44 @@
       <!-- CONTENT BODY -->
       <div class="content-body">
 
-        <!-- ==================== PAGE 1: RINGKASAN (OVERVIEW) ==================== -->
-        <section id="pageOverview" class="app-page hidden">
-          <!-- Stat Cards -->
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon-wrap bg-blue-subtle">
-                <i class="fa-solid fa-users"></i>
-              </div>
-              <div class="stat-details">
-                <span class="stat-label">TOTAL MEMBER</span>
-                <h3 class="stat-value" id="statTotalMembers">0</h3>
-                <span class="stat-hint text-muted"><i class="fa-solid fa-circle-info"></i> Seluruh data member</span>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon-wrap bg-danger-subtle">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-              </div>
-              <div class="stat-details">
-                <span class="stat-label">BELUM DI CEK</span>
-                <h3 class="stat-value text-danger" id="statUncheckedMembers">0</h3>
-                <span class="stat-hint text-danger-subtle"><i class="fa-solid fa-triangle-exclamation"></i> Perlu pengecekan</span>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon-wrap bg-success-subtle">
-                <i class="fa-solid fa-circle-check"></i>
-              </div>
-              <div class="stat-details">
-                <span class="stat-label">SUDAH DI CEK</span>
-                <h3 class="stat-value text-success" id="statCheckedMembers">0</h3>
-                <span class="stat-hint text-success-subtle" id="statCheckProgress">100% Selesai</span>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon-wrap bg-purple-subtle">
-                <i class="fa-solid fa-money-bill-transfer"></i>
-              </div>
-              <div class="stat-details">
-                <span class="stat-label">TOTAL TRANSAKSI</span>
-                <h3 class="stat-value" id="statTotalTransactions">0</h3>
-                <span class="stat-hint text-muted"><i class="fa-solid fa-wallet"></i> Data kasir hari ini</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Quick Action & Activity Preview Grid -->
-          <div class="dashboard-split-grid">
-            <!-- Quick Members to Check -->
-            <div class="dashboard-panel">
-              <div class="panel-header">
-                <div class="panel-title-wrap">
-                  <i class="fa-solid fa-bolt text-warning"></i>
-                  <h3>Member Perlu Dicek Segera</h3>
-                </div>
-                <button class="btn-secondary-sm" onclick="navigateToPage('members', {filter: 'BELUM_DICEK'})">
-                  Lihat Semua <i class="fa-solid fa-arrow-right"></i>
-                </button>
-              </div>
-              <div class="table-responsive">
-                <table class="custom-table">
-                  <thead>
-                    <tr>
-                      <th>ID MEMBER</th>
-                      <th>NAMA</th>
-                      <th>ROLE</th>
-                      <th>STATUS CEK</th>
-                      <th>AKSI CEPAT</th>
-                    </tr>
-                  </thead>
-                  <tbody id="quickUncheckedTableBody">
-                    <!-- Rendered by JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Recent Activity Mini Log -->
-            <div class="dashboard-panel">
-              <div class="panel-header">
-                <div class="panel-title-wrap">
-                  <i class="fa-solid fa-clock-rotate-left text-info"></i>
-                  <h3>Log Aktivitas Terkini</h3>
-                </div>
-                <button class="btn-secondary-sm" onclick="navigateToPage('logs')">
-                  Semua Log <i class="fa-solid fa-arrow-right"></i>
-                </button>
-              </div>
-              <div class="activity-feed-list" id="quickActivityFeed">
-                <!-- Rendered by JS -->
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-        <!-- ==================== PAGE 2: MONITORING DATA MEMBER ==================== -->
-        <section id="pageMembers" class="app-page">
+        <!-- ==================== PAGE 1: MONITORING KELENGKAPAN HP (HALAMAN UTAMA) ==================== -->
+        <section id="pageMonitoring" class="app-page">
           
+          <!-- Shift Card Banner -->
+          <div class="shift-card-strip">
+            <div class="shift-details">
+              <div class="shift-badge-wrap">
+                <span class="badge-role super-master" id="shiftBadge">SHIFT 1</span>
+                <span class="shift-title">Shift Operasional Aktif</span>
+              </div>
+              <small class="text-muted" id="shiftInfoText">Dimulai: 19/08/2026 • Oleh: SYSTEM</small>
+            </div>
+            <div class="shift-actions" id="shiftAdminActions">
+              <button type="button" id="startShiftBtn" class="btn-primary-gradient" onclick="handleNewShift()">
+                <i class="fa-solid fa-rotate"></i> MULAI SHIFT BARU (RESET STATUS)
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Category Tabs -->
+          <div class="category-tabs-bar">
+            <button type="button" class="tab-btn active" data-cat="all" onclick="switchCategory('all')">
+              <i class="fa-solid fa-layer-group"></i> SEMUA PERANGKAT (<span id="countCatAll">0</span>)
+            </button>
+            <button type="button" class="tab-btn" data-cat="withdraw" onclick="switchCategory('withdraw')">
+              <i class="fa-solid fa-money-bill-transfer"></i> HP WITHDRAW (<span id="countCatWithdraw">0</span>)
+            </button>
+            <button type="button" class="tab-btn" data-cat="depo" onclick="switchCategory('depo')">
+              <i class="fa-solid fa-building-columns"></i> HP DEPO (<span id="countCatDepo">0</span>)
+            </button>
+            <button type="button" class="tab-btn" data-cat="bankKas" onclick="switchCategory('bankKas')">
+              <i class="fa-solid fa-vault"></i> HP BANK KAS (<span id="countCatBankKas">0</span>)
+            </button>
+            <button type="button" class="tab-btn" data-cat="token" onclick="switchCategory('token')">
+              <i class="fa-solid fa-key"></i> TOKEN BCA OFFICE (<span id="countCatToken">0</span>)
+            </button>
+          </div>
+
           <!-- Control Panel / Toolbar -->
           <div class="control-panel">
             <div class="search-and-filters">
@@ -318,8 +239,8 @@
               <!-- Search Bar Realtime -->
               <div class="search-input-wrap">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="memberSearchInput" class="search-input" placeholder="Ketik untuk cari ID, nama, status, atau role (Real-time)..." autocomplete="off">
-                <button type="button" id="clearMemberSearchBtn" class="btn-clear-search hidden" title="Hapus pencarian">
+                <input type="text" id="hpSearchInput" class="search-input" placeholder="Cari nama HP, bank, nomor, atau petugas (Real-time)..." autocomplete="off">
+                <button type="button" id="clearHpSearchBtn" class="btn-clear-search hidden" title="Hapus pencarian">
                   <i class="fa-solid fa-circle-xmark"></i>
                 </button>
               </div>
@@ -329,36 +250,25 @@
                 <!-- Status Pengecekan Filter -->
                 <div class="select-wrapper">
                   <label class="filter-label">Status Cek:</label>
-                  <select id="memberCheckStatusFilter" class="custom-select">
-                    <option value="ALL">Semua Status Cek</option>
-                    <option value="BELUM_DICEK">BELUM DI CEK</option>
-                    <option value="SUDAH_DICEK">SUDAH DI CEK</option>
-                  </select>
-                </div>
-
-                <!-- Role Filter -->
-                <div class="select-wrapper">
-                  <label class="filter-label">Role Member:</label>
-                  <select id="memberRoleFilter" class="custom-select">
-                    <option value="ALL">Semua Role</option>
-                    <option value="SUPER MASTER">SUPER MASTER</option>
-                    <option value="LEADER">LEADER</option>
-                    <option value="CS">CS</option>
-                    <option value="KAPTEN">KAPTEN</option>
-                    <option value="KASIR">KASIR</option>
-                    <option value="VIP">VIP MEMBER</option>
-                    <option value="REGULER">REGULER</option>
-                  </select>
-                </div>
-
-                <!-- Status Member Filter -->
-                <div class="select-wrapper">
-                  <label class="filter-label">Status Akun:</label>
-                  <select id="memberStatusFilter" class="custom-select">
+                  <select id="hpCheckFilter" class="custom-select">
                     <option value="ALL">Semua Status</option>
-                    <option value="AKTIF">Aktif</option>
-                    <option value="NONAKTIF">Non-Aktif</option>
-                    <option value="SUSPENDED">Suspended</option>
+                    <option value="UNCHECKED">BELUM DI CEK</option>
+                    <option value="CHECKED">SUDAH DI CEK</option>
+                  </select>
+                </div>
+
+                <!-- Bank Filter -->
+                <div class="select-wrapper">
+                  <label class="filter-label">Bank:</label>
+                  <select id="hpBankFilter" class="custom-select">
+                    <option value="ALL">Semua Bank</option>
+                    <option value="BCA">BCA</option>
+                    <option value="BRI">BRI</option>
+                    <option value="BNI">BNI</option>
+                    <option value="MANDIRI">MANDIRI</option>
+                    <option value="DANAMON">DANAMON</option>
+                    <option value="MAYBANK">MAYBANK</option>
+                    <option value="CIMB">CIMB</option>
                   </select>
                 </div>
               </div>
@@ -366,186 +276,190 @@
 
             <!-- Action Buttons -->
             <div class="panel-action-buttons">
-              <button type="button" id="refreshMembersBtn" class="btn-action-refresh" title="Muat Ulang Data">
-                <i class="fa-solid fa-arrows-rotate"></i> <span>Refresh</span>
+              <button type="button" id="refreshHpBtn" class="btn-action-refresh" onclick="refreshDashboardData()" title="Muat Ulang Data dari Google Sheet">
+                <i class="fa-solid fa-arrows-rotate"></i> <span>Sync Sheet</span>
               </button>
               
-              <button type="button" id="addNewMemberBtn" class="btn-action-add" title="Tambah Member Baru">
-                <i class="fa-solid fa-user-plus"></i> <span>Tambah Member</span>
-              </button>
-
-              <button type="button" id="exportMembersBtn" class="btn-action-export" title="Export Data ke CSV">
-                <i class="fa-solid fa-file-export"></i> <span>Export</span>
+              <button type="button" class="btn-action-export" onclick="exportHpToCSV()" title="Export Data ke CSV">
+                <i class="fa-solid fa-file-export"></i> <span>Export CSV</span>
               </button>
             </div>
           </div>
 
-          <!-- Speed Banner / Counter Status -->
+          <!-- Speed & Progress Strip -->
           <div class="speed-status-strip">
             <div class="strip-left">
-              <span class="badge-pill bg-blue"><i class="fa-solid fa-bolt"></i> Fast Engine Active</span>
-              <span class="strip-text" id="memberCountSummary">Menampilkan 0 dari 0 member</span>
+              <span class="badge-pill bg-blue"><i class="fa-solid fa-bolt"></i> Fast Engine</span>
+              <span class="strip-text" id="hpCountSummary">Menampilkan 0 dari 0 HP</span>
             </div>
             <div class="strip-right">
-              <span class="text-hint"><i class="fa-solid fa-circle-info"></i> Klik tombol <b>BELUM DI CEK</b> untuk verifikasi instan tanpa reload.</span>
+              <span class="text-hint"><i class="fa-solid fa-circle-info"></i> Klik tombol <b>BELUM DI CEK</b> untuk verifikasi kelengkapan HP tanpa reload.</span>
             </div>
           </div>
 
-          <!-- Member Table Card -->
+          <!-- Main HP Monitoring Table -->
           <div class="table-card">
             <div class="table-responsive">
-              <table class="custom-table member-table" id="membersMainTable">
+              <table class="custom-table member-table" id="hpMainTable">
                 <thead>
                   <tr>
                     <th style="width: 50px;">NO</th>
-                    <th style="width: 140px;">ID MEMBER</th>
-                    <th>NAMA MEMBER</th>
-                    <th style="width: 110px;">STATUS</th>
-                    <th style="width: 130px;">ROLE</th>
-                    <th style="width: 160px; text-align: center;">STATUS PENGECEKAN</th>
+                    <th style="width: 140px;">KATEGORI</th>
+                    <th style="width: 110px;">BANK</th>
+                    <th>NAMA PERANGKAT / HP</th>
+                    <th style="width: 160px; text-align: center;">STATUS KELENGKAPAN</th>
                     <th style="width: 150px;">WAKTU DICEK</th>
-                    <th style="width: 160px;">DICEK OLEH</th>
-                    <th style="width: 130px; text-align: right;">AKSI</th>
+                    <th style="width: 170px;">DICEK OLEH</th>
+                    <th style="width: 90px; text-align: right;">AKSI</th>
                   </tr>
                 </thead>
-                <tbody id="memberTableBody">
-                  <!-- Rendered dynamically by JavaScript -->
+                <tbody id="hpTableBody">
+                  <!-- Rendered dynamically via JavaScript -->
                 </tbody>
               </table>
             </div>
 
             <!-- Empty State -->
-            <div id="memberEmptyState" class="empty-state hidden">
-              <div class="empty-icon"><i class="fa-solid fa-user-slash"></i></div>
-              <h4>Tidak ada data member yang cocok</h4>
-              <p>Coba ubah kata kunci pencarian atau reset filter di atas.</p>
-              <button class="btn-secondary-sm" onclick="resetMemberFilters()">Reset Filter</button>
+            <div id="hpEmptyState" class="empty-state hidden">
+              <div class="empty-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+              <h4>Tidak ada data perangkat yang cocok</h4>
+              <p>Ubah kata kunci pencarian atau ganti filter kategori di atas.</p>
+              <button class="btn-secondary-sm" onclick="resetHpFilters()">Reset Filter</button>
             </div>
 
             <!-- Pagination Bar -->
             <div class="table-pagination-bar">
               <div class="pagination-info">
                 <span>Tampilkan</span>
-                <select id="memberPageSizeSelect" class="page-size-select">
+                <select id="hpPageSizeSelect" class="page-size-select">
                   <option value="10">10</option>
                   <option value="25">25</option>
                   <option value="50">50</option>
                   <option value="100">100</option>
+                  <option value="500">Semua</option>
                 </select>
                 <span>baris per halaman</span>
               </div>
 
-              <div class="pagination-controls" id="memberPaginationControls">
+              <div class="pagination-controls" id="hpPaginationControls">
                 <!-- Rendered dynamically -->
               </div>
             </div>
           </div>
         </section>
 
-
-        <!-- ==================== PAGE 3: DATA TRANSAKSI & KASIR ==================== -->
-        <section id="pageTransactions" class="app-page hidden">
-          <div class="control-panel">
-            <div class="search-and-filters">
-              <div class="search-input-wrap">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="transactionSearchInput" class="search-input" placeholder="Cari transaksi berdasarkan bank, nama, atau invoice..." autocomplete="off">
+        <!-- ==================== PAGE 2: RINGKASAN & STATISTIK ==================== -->
+        <section id="pageOverview" class="app-page hidden">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-blue-subtle">
+                <i class="fa-solid fa-mobile-screen-button"></i>
               </div>
-              <div class="filter-group">
-                <div class="select-wrapper">
-                  <label class="filter-label">Kategori:</label>
-                  <select id="transactionTypeFilter" class="custom-select">
-                    <option value="ALL">Semua Transaksi</option>
-                    <option value="WITHDRAW">WITHDRAW</option>
-                    <option value="DEPOSIT">DEPOSIT</option>
-                    <option value="KAS_KECIL">KAS KECIL</option>
-                    <option value="KAS_BESAR">KAS BESAR</option>
-                  </select>
-                </div>
-                <div class="select-wrapper">
-                  <label class="filter-label">Bank:</label>
-                  <select id="transactionBankFilter" class="custom-select">
-                    <option value="ALL">Semua Bank</option>
-                    <option value="BCA">BCA</option>
-                    <option value="BRI">BRI</option>
-                    <option value="BNI">BNI</option>
-                    <option value="MANDIRI">MANDIRI</option>
-                    <option value="DANAMON">DANAMON</option>
-                    <option value="CIMB">CIMB</option>
-                  </select>
-                </div>
+              <div class="stat-details">
+                <span class="stat-label">TOTAL PERANGKAT / HP</span>
+                <h3 class="stat-value" id="statTotalHp">0</h3>
+                <span class="stat-hint text-muted"><i class="fa-solid fa-circle-info"></i> Seluruh data sheet DATA BANK</span>
               </div>
             </div>
 
-            <div class="panel-action-buttons">
-              <button type="button" id="addNewTransactionBtn" class="btn-action-add">
-                <i class="fa-solid fa-plus"></i> <span>Input Transaksi</span>
-              </button>
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-danger-subtle">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-label">BELUM DI CEK</span>
+                <h3 class="stat-value text-danger" id="statUncheckedHp">0</h3>
+                <span class="stat-hint text-danger-subtle"><i class="fa-solid fa-triangle-exclamation"></i> Perlu verifikasi fisik</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-success-subtle">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-label">SUDAH DI CEK</span>
+                <h3 class="stat-value text-success" id="statCheckedHp">0</h3>
+                <span class="stat-hint text-success-subtle" id="statCheckProgress">0% Terverifikasi</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-purple-subtle">
+                <i class="fa-solid fa-key"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-label">TOKEN BCA OFFICE</span>
+                <h3 class="stat-value" id="statTotalToken">0</h3>
+                <span class="stat-hint text-muted"><i class="fa-solid fa-vault"></i> Token fisik office</span>
+              </div>
             </div>
           </div>
 
-          <div class="table-card">
-            <div class="table-responsive">
-              <table class="custom-table">
-                <thead>
-                  <tr>
-                    <th>NO</th>
-                    <th>WAKTU</th>
-                    <th>INVOICE / ID</th>
-                    <th>KATEGORI</th>
-                    <th>BANK & REKENING</th>
-                    <th>NAMA MEMBER</th>
-                    <th>NOMINAL (RP)</th>
-                    <th>STATUS</th>
-                    <th>PETUGAS KASIR</th>
-                    <th style="text-align: right;">AKSI</th>
-                  </tr>
-                </thead>
-                <tbody id="transactionTableBody">
-                  <!-- Rendered dynamically -->
-                </tbody>
-              </table>
+          <div class="dashboard-split-grid">
+            <div class="dashboard-panel">
+              <div class="panel-header">
+                <div class="panel-title-wrap">
+                  <i class="fa-solid fa-bolt text-warning"></i>
+                  <h3>HP Belum Dicek (Perlu Segera Diverifikasi)</h3>
+                </div>
+                <button class="btn-secondary-sm" onclick="navigateToPage('monitoring'); document.getElementById('hpCheckFilter').value='UNCHECKED'; filterAndRenderHp();">
+                  Lihat Semua <i class="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>KATEGORI</th>
+                      <th>BANK</th>
+                      <th>NAMA HP</th>
+                      <th>STATUS</th>
+                      <th>AKSI</th>
+                    </tr>
+                  </thead>
+                  <tbody id="quickUncheckedHpBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="dashboard-panel">
+              <div class="panel-header">
+                <div class="panel-title-wrap">
+                  <i class="fa-solid fa-clock-rotate-left text-info"></i>
+                  <h3>Log Pengecekan Terkini</h3>
+                </div>
+                <button class="btn-secondary-sm" onclick="navigateToPage('logs')">
+                  Semua Log <i class="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+              <div class="activity-feed-list" id="quickActivityFeed"></div>
             </div>
           </div>
         </section>
 
-
-        <!-- ==================== PAGE 4: USER & ROLE MANAGEMENT ==================== -->
+        <!-- ==================== PAGE 3: KELOLA USER & ROLE ==================== -->
         <section id="pageUsers" class="app-page hidden">
-          <div class="control-panel">
-            <div class="search-and-filters">
-              <div class="search-input-wrap">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="userSearchInput" class="search-input" placeholder="Cari user berdasarkan username, nama, atau role..." autocomplete="off">
-              </div>
-            </div>
-            <div class="panel-action-buttons">
-              <button type="button" id="btnAddNewUser" class="btn-action-add">
-                <i class="fa-solid fa-user-plus"></i> <span>Tambah User Baru</span>
-              </button>
-            </div>
-          </div>
-
           <div class="role-privileges-info-grid">
             <div class="role-desc-card">
               <span class="badge-role super-master">SUPER MASTER</span>
-              <p>Akses Penuh: Kelola semua data, atur role semua level user, kontrol sistem.</p>
+              <p>Akses Penuh: Kelola semua data, atur role semua level user, reset shift operasional.</p>
             </div>
             <div class="role-desc-card">
               <span class="badge-role leader">LEADER</span>
-              <p>Akses Utama: Melihat semua data, mengatur role user & member, audit log aktivitas.</p>
+              <p>Akses Utama: Melihat semua data, mengatur role user & staff, audit log aktivitas.</p>
             </div>
             <div class="role-desc-card">
               <span class="badge-role cs">CS</span>
-              <p>Customer Service: Fokus pada data member dan proses pengecekan member.</p>
+              <p>Customer Service: Fokus pada pengecekan kelengkapan HP & monitoring.</p>
             </div>
             <div class="role-desc-card">
               <span class="badge-role kapten">KAPTEN</span>
-              <p>Monitoring & Pengecekan: Memantau kelancaran operasional data member.</p>
+              <p>Monitoring & Pengecekan: Memantau kelengkapan perangkat HP office.</p>
             </div>
             <div class="role-desc-card">
               <span class="badge-role kasir">KASIR</span>
-              <p>Kasir & Transaksi: Menangani mutasi deposit, withdraw, dan data kas.</p>
+              <p>Kasir & Transaksi: Menangani mutasi bank kas dan perangkat kasir.</p>
             </div>
           </div>
 
@@ -555,47 +469,30 @@
                 <thead>
                   <tr>
                     <th>NO</th>
-                    <th>USERNAME</th>
-                    <th>NAMA LENGKAP</th>
+                    <th>EMAIL</th>
+                    <th>NAMA PETUGAS</th>
                     <th>ROLE AKSES</th>
                     <th>STATUS AKUN</th>
-                    <th>LOGIN TERAKHIR</th>
-                    <th style="text-align: right;">PENGATURAN ROLE / AKSI</th>
+                    <th style="text-align: right;">PENGATURAN ROLE</th>
                   </tr>
                 </thead>
-                <tbody id="usersTableBody">
-                  <!-- Rendered dynamically -->
-                </tbody>
+                <tbody id="usersTableBody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-
-        <!-- ==================== PAGE 5: LOG AKTIVITAS (AUDIT TRAIL) ==================== -->
+        <!-- ==================== PAGE 4: LOG AKTIVITAS (AUDIT TRAIL) ==================== -->
         <section id="pageLogs" class="app-page hidden">
           <div class="control-panel">
             <div class="search-and-filters">
               <div class="search-input-wrap">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="logSearchInput" class="search-input" placeholder="Cari log (misal: 'MEMBER123', 'LEADER', 'SUDAH DI CEK')..." autocomplete="off">
-              </div>
-              <div class="filter-group">
-                <div class="select-wrapper">
-                  <label class="filter-label">Jenis Aktivitas:</label>
-                  <select id="logActionFilter" class="custom-select">
-                    <option value="ALL">Semua Aktivitas</option>
-                    <option value="CHECK_MEMBER">Member Dicek</option>
-                    <option value="CHANGE_ROLE">Role Diubah</option>
-                    <option value="EDIT_DATA">Data Diedit</option>
-                    <option value="LOGIN">Login</option>
-                    <option value="LOGOUT">Logout</option>
-                  </select>
-                </div>
+                <input type="text" id="logSearchInput" class="search-input" placeholder="Cari log (misal: 'WD BCA', 'LEADER', 'SUDAH DI CEK')..." autocomplete="off">
               </div>
             </div>
             <div class="panel-action-buttons">
-              <button type="button" id="clearLogsBtn" class="btn-action-refresh" title="Refresh Log">
+              <button type="button" class="btn-action-refresh" onclick="loadAuditHistory()" title="Refresh Log dari Sheet Audit_Log">
                 <i class="fa-solid fa-arrows-rotate"></i> <span>Refresh Log</span>
               </button>
             </div>
@@ -608,26 +505,21 @@
                   <tr>
                     <th style="width: 60px;">NO</th>
                     <th style="width: 170px;">WAKTU (TIMESTAMP)</th>
-                    <th style="width: 140px;">ROLE & USER</th>
-                    <th style="width: 140px;">AKTIVITAS</th>
-                    <th>FORMAT LOG AKTIVITAS (STANDAR)</th>
-                    <th>DETAIL PERUBAHAN</th>
+                    <th style="width: 200px;">PETUGAS (EMAIL)</th>
+                    <th style="width: 110px;">ACTION</th>
+                    <th style="width: 90px;">SHIFT</th>
+                    <th style="width: 80px;">CELL</th>
+                    <th>PERANGKAT / ITEM</th>
+                    <th>FORMAT LOG STANDAR</th>
                   </tr>
                 </thead>
-                <tbody id="logsTableBody">
-                  <!-- Rendered dynamically -->
-                </tbody>
+                <tbody id="logsTableBody"></tbody>
               </table>
-            </div>
-            
-            <div class="table-pagination-bar">
-              <span class="pagination-info" id="logCountSummary">Menampilkan log terkini</span>
             </div>
           </div>
         </section>
 
-
-        <!-- ==================== PAGE 6: PENGATURAN (SETTINGS) ==================== -->
+        <!-- ==================== PAGE 5: PENGATURAN (SETTINGS) ==================== -->
         <section id="pageSettings" class="app-page hidden">
           <div class="settings-grid">
             <div class="settings-card">
@@ -639,19 +531,10 @@
                 <div class="form-group">
                   <label>Logo Dashboard Utama</label>
                   <div class="logo-preview-box">
-                    <img id="settingsLogoPreview" src="logo.png" alt="Preview Logo" class="preview-img" onerror="this.src=''; this.classList.add('hidden'); document.getElementById('previewFallback').classList.remove('hidden');">
-                    <div id="previewFallback" class="preview-fallback hidden">
-                      <i class="fa-solid fa-image"></i>
-                    </div>
+                    <img id="settingsLogoPreview" src="logo.png" alt="Preview Logo" class="preview-img">
                   </div>
                   <input type="file" id="logoFileInput" accept="image/*" class="custom-file-input">
-                  <small class="text-muted">Pilih file logo (PNG, JPG, SVG, WebP) untuk mengganti logo dashboard.</small>
-                </div>
-
-                <div class="form-group">
-                  <label>Atau Gunakan URL Logo</label>
-                  <input type="url" id="logoUrlInput" class="custom-input" placeholder="https://domain.com/logo.png">
-                  <button type="button" class="btn-secondary-sm mt-2" onclick="applyLogoUrl()">Terapkan URL Logo</button>
+                  <small class="text-muted">Pilih file logo untuk mengganti logo dashboard.</small>
                 </div>
               </div>
             </div>
@@ -659,31 +542,21 @@
             <div class="settings-card">
               <div class="card-header-clean">
                 <i class="fa-solid fa-server text-success"></i>
-                <h3>Backend & Database Connection</h3>
+                <h3>Koneksi Google Apps Script Web App</h3>
               </div>
               <div class="settings-form">
                 <div class="form-group">
-                  <label>Google Apps Script Web App URL</label>
+                  <label>API Deployment URL</label>
                   <input type="text" id="settingApiUrl" class="custom-input" placeholder="https://script.google.com/macros/s/.../exec">
-                  <small class="text-muted">URL deployment Apps Script untuk sync ke Google Sheets.</small>
+                  <small class="text-muted">URL Web App Apps Script yang terhubung ke Sheet DATA BANK.</small>
                 </div>
 
                 <div class="form-group">
                   <button type="button" class="btn-primary-gradient" onclick="saveApiUrlSetting()">
                     <i class="fa-solid fa-floppy-disk"></i> Simpan Konfigurasi
                   </button>
-                  <button type="button" class="btn-secondary-sm ml-2" onclick="testApiConnection()">
+                  <button type="button" class="btn-secondary-sm ml-2" onclick="testConnection()">
                     <i class="fa-solid fa-plug-circle-check"></i> Tes Koneksi
-                  </button>
-                </div>
-
-                <hr class="divider">
-
-                <div class="form-group">
-                  <label>Cache & Penyimpanan Lokal</label>
-                  <p class="text-muted text-sm">Reset cache lokal jika ada data yang tidak sinkron.</p>
-                  <button type="button" class="btn-danger-sm" onclick="clearLocalCache()">
-                    <i class="fa-solid fa-trash-can"></i> Bersihkan Cache Lokal
                   </button>
                 </div>
               </div>
@@ -695,110 +568,85 @@
     </main>
   </div>
 
-
   <!-- ==================== MODALS ==================== -->
   
-  <!-- MODAL: UBAH ROLE MEMBER / USER (KHUSUS SUPER MASTER & LEADER) -->
+  <!-- MODAL: UBAH ROLE USER (SUPER MASTER & LEADER) -->
   <div id="changeRoleModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title-wrap">
           <i class="fa-solid fa-user-shield text-primary"></i>
-          <h3>Ubah Role Akses</h3>
+          <h3>Ubah Role Akses User</h3>
         </div>
         <button class="btn-close-modal" onclick="closeModal('changeRoleModal')"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p class="modal-desc">Ubah level role untuk member / user di bawah ini. Perubahan akan langsung tercatat di log aktivitas.</p>
+        <p class="modal-desc">Ubah level role untuk staf di bawah ini. Perubahan akan disimpan ke sheet Users dan dicatat di Audit_Log.</p>
         
         <div class="info-pill mb-3">
-          <div><b>Target:</b> <span id="modalTargetName">-</span> (<span id="modalTargetId">-</span>)</div>
+          <div><b>Email:</b> <span id="modalTargetEmail">-</span></div>
+          <div><b>Nama:</b> <span id="modalTargetName">-</span></div>
           <div><b>Role Saat Ini:</b> <span class="badge-role" id="modalCurrentRole">-</span></div>
         </div>
 
         <div class="form-group">
           <label for="selectNewRole">Pilih Role Baru:</label>
           <select id="selectNewRole" class="custom-select w-100">
-            <!-- Options populated based on executor role -->
+            <option value="SUPER MASTER">SUPER MASTER</option>
+            <option value="LEADER">LEADER</option>
+            <option value="CS">CS</option>
+            <option value="KAPTEN">KAPTEN</option>
+            <option value="KASIR">KASIR</option>
           </select>
-        </div>
-
-        <div class="form-group">
-          <label for="roleChangeReason">Catatan / Alasan Perubahan (Opsional):</label>
-          <input type="text" id="roleChangeReason" class="custom-input" placeholder="Misal: Promosi jabatan, rotasi divisi">
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-secondary" onclick="closeModal('changeRoleModal')">Batal</button>
-        <button type="button" id="confirmChangeRoleBtn" class="btn-primary-gradient">
+        <button type="button" id="confirmChangeRoleBtn" class="btn-primary-gradient" onclick="handleConfirmChangeRole()">
           <i class="fa-solid fa-check"></i> Simpan Role Baru
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: TAMBAH / EDIT MEMBER -->
-  <div id="memberModal" class="modal-backdrop hidden">
+  <!-- MODAL: EDIT NAMA PERANGKAT HP -->
+  <div id="editHpModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title-wrap">
-          <i class="fa-solid fa-user-pen text-primary"></i>
-          <h3 id="memberModalTitle">Tambah Member Baru</h3>
+          <i class="fa-solid fa-pen-to-square text-primary"></i>
+          <h3>Edit Nama Perangkat HP</h3>
         </div>
-        <button class="btn-close-modal" onclick="closeModal('memberModal')"><i class="fa-solid fa-xmark"></i></button>
+        <button class="btn-close-modal" onclick="closeModal('editHpModal')"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <form id="memberForm" onsubmit="return false;">
-        <div class="modal-body">
-          <input type="hidden" id="editMemberId">
-          <div class="form-group">
-            <label for="formMemberUsername">Username / ID Member *</label>
-            <input type="text" id="formMemberUsername" class="custom-input" placeholder="Misal: MEMBER123 atau MBR-089" required>
-          </div>
-          <div class="form-group">
-            <label for="formMemberName">Nama Lengkap *</label>
-            <input type="text" id="formMemberName" class="custom-input" placeholder="Masukkan nama lengkap member" required>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-6">
-              <label for="formMemberRole">Role / Level</label>
-              <select id="formMemberRole" class="custom-select w-100">
-                <option value="REGULER">REGULER</option>
-                <option value="VIP">VIP MEMBER</option>
-                <option value="KASIR">KASIR</option>
-                <option value="KAPTEN">KAPTEN</option>
-                <option value="CS">CS</option>
-                <option value="LEADER">LEADER</option>
-                <option value="SUPER MASTER">SUPER MASTER</option>
-              </select>
-            </div>
-            <div class="form-group col-6">
-              <label for="formMemberStatus">Status Akun</label>
-              <select id="formMemberStatus" class="custom-select w-100">
-                <option value="AKTIF">AKTIF</option>
-                <option value="NONAKTIF">NON-AKTIF</option>
-                <option value="SUSPENDED">SUSPENDED</option>
-              </select>
-            </div>
-          </div>
+      <div class="modal-body">
+        <input type="hidden" id="editHpCell">
+        <div class="form-group">
+          <label>Koordinat Cell di Sheet DATA BANK:</label>
+          <input type="text" id="editHpCellDisplay" class="custom-input" disabled>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secondary" onclick="closeModal('memberModal')">Batal</button>
-          <button type="submit" id="saveMemberBtn" class="btn-primary-gradient">
-            <i class="fa-solid fa-floppy-disk"></i> Simpan Data Member
-          </button>
+        <div class="form-group">
+          <label>Nama Perangkat / Bank:</label>
+          <input type="text" id="editHpNameInput" class="custom-input" placeholder="Masukkan nama HP baru">
         </div>
-      </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('editHpModal')">Batal</button>
+        <button type="button" class="btn-primary-gradient" onclick="handleConfirmEditHp()">
+          <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- GLOBAL ASYNC TOP PROGRESS BAR -->
+  <!-- ASYNC TOP PROGRESS BAR -->
   <div id="topProgressBar" class="top-progress-bar hidden"></div>
 
   <!-- SCRIPTS -->
-  <script src="config.js?v=20260819_v2"></script>
-  <script src="app.js?v=20260819_v2"></script>
+  <script src="config.js?v=20260819_v3"></script>
+  <script src="app.js?v=20260819_v3"></script>
 </body>
 </html>

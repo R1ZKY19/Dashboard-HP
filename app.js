@@ -1,214 +1,129 @@
 /**
  * ============================================================================
- * MEMBER MONITOR PRO - HIGH PERFORMANCE SINGLE PAGE APPLICATION ENGINE
+ * OFFICE DATA CENTER - HIGH SPEED HP MONITORING ENGINE V3
  * ============================================================================
  */
 
-// Global Application State
+// Application State
 const STATE = {
   currentUser: null,
-  sessionToken: null,
-  activePage: 'members', // default landing page
-  members: [],
-  filteredMembers: [],
-  transactions: [],
+  sessionToken: localStorage.getItem(CONFIG.SESSION_KEY) || '',
+  activePage: 'monitoring',
+  activeCategory: 'all',
+  shift: { shift: 'SHIFT 1', startTime: '19/08/2026', startedBy: 'SYSTEM' },
+  
+  // Data Containers
+  allData: [],
+  withdrawData: [],
+  depoData: [],
+  bankKasData: [],
+  tokenData: [],
   users: [],
   logs: [],
   onlineUsers: [],
-  
-  // Pagination & Filtering State for Members
-  memberPage: 1,
-  memberPageSize: 10,
-  memberSearchQuery: '',
-  memberCheckStatusFilter: 'ALL',
-  memberRoleFilter: 'ALL',
-  memberStatusFilter: 'ALL',
 
-  // Logs Filtering
-  logSearchQuery: '',
-  logActionFilter: 'ALL',
+  // Filtering & Pagination
+  searchQuery: '',
+  checkFilter: 'ALL',
+  bankFilter: 'ALL',
+  currentPage: 1,
+  pageSize: 10,
 
-  // Transactions Filtering
-  transactionSearchQuery: '',
-  transactionTypeFilter: 'ALL',
-  transactionBankFilter: 'ALL',
-
-  // Target for Modal actions
-  activeModalTarget: null
+  // Selected Target for Role/Edit Modals
+  activeTarget: null
 };
 
-// Initial Mock / Seed Data for Instant Load & Fallback Engine
-const SEED_DATA = {
-  users: [
-    { id: 'USR-001', username: 'supermaster', name: 'Rizky Prayogi (Super Master)', role: 'SUPER MASTER', status: 'AKTIF', lastLogin: '19/08/2026 21:30' },
-    { id: 'USR-002', username: 'leader_ops', name: 'Bambang Sudirjo (Leader)', role: 'LEADER', status: 'AKTIF', lastLogin: '19/08/2026 21:15' },
-    { id: 'USR-003', username: 'cs_support', name: 'Siti Rahmawati (CS Staff)', role: 'CS', status: 'AKTIF', lastLogin: '19/08/2026 21:40' },
-    { id: 'USR-004', username: 'kapten_ops', name: 'Agus Maulana (Kapten Cek)', role: 'KAPTEN', status: 'AKTIF', lastLogin: '19/08/2026 20:50' },
-    { id: 'USR-005', username: 'kasir_bank', name: 'Dewi Lestari (Kasir Keuangan)', role: 'KASIR', status: 'AKTIF', lastLogin: '19/08/2026 21:05' }
-  ],
-  members: [
-    { id: 'MBR-1001', username: 'MEMBER123', name: 'Andi Saputra', status: 'AKTIF', role: 'VIP', checked: false, checkedAt: '-', checkedBy: '-', notes: 'Deposit harian tinggi' },
-    { id: 'MBR-1002', username: 'RATNASARI88', name: 'Ratnasari Dewi', status: 'AKTIF', role: 'REGULER', checked: true, checkedAt: '19/08/2026 21:45', checkedBy: 'LEADER (Bambang)', notes: 'Akun terverifikasi' },
-    { id: 'MBR-1003', username: 'FAIZAL_AUL', name: 'Faizal Auliadi', status: 'AKTIF', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: 'Perlu cek mutasi rekening' },
-    { id: 'MBR-1004', username: 'RENDHA_YS', name: 'Rendha Yusmawan Saputra', status: 'AKTIF', role: 'VIP', checked: false, checkedAt: '-', checkedBy: '-', notes: 'Withdraw rutin' },
-    { id: 'MBR-1005', username: 'RAFI_GHIFARI', name: 'Muhamad Rafi Al Ghifari', status: 'AKTIF', role: 'REGULER', checked: true, checkedAt: '19/08/2026 21:10', checkedBy: 'CS (Siti)', notes: 'Sudah lolos verifikasi' },
-    { id: 'MBR-1006', username: 'SAFIRA_OKT', name: 'Safira Oktaviana', status: 'AKTIF', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: '-' },
-    { id: 'MBR-1007', username: 'DEDE_BUDI', name: 'Dede Budiyanto', status: 'AKTIF', role: 'VIP', checked: true, checkedAt: '19/08/2026 20:30', checkedBy: 'KAPTEN (Agus)', notes: 'Member VIP prioritas' },
-    { id: 'MBR-1008', username: 'MARIANUS_K', name: 'Marianus Koli', status: 'AKTIF', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: '-' },
-    { id: 'MBR-1009', username: 'SRI_WAHYUNI', name: 'Sri Wahyuni', status: 'AKTIF', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: 'Data baru masuk' },
-    { id: 'MBR-1010', username: 'A_HAETAMI', name: 'Ahmad Haetami', status: 'AKTIF', role: 'REGULER', checked: true, checkedAt: '19/08/2026 19:40', checkedBy: 'CS (Siti)', notes: '-' },
-    { id: 'MBR-1011', username: 'M_MUROK', name: 'M. Murok Syafiudin', status: 'NONAKTIF', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: 'Akun nonaktif sementara' },
-    { id: 'MBR-1012', username: 'RUDI_ARTANA', name: 'Rudi Artana', status: 'AKTIF', role: 'VIP', checked: true, checkedAt: '19/08/2026 18:20', checkedBy: 'LEADER (Bambang)', notes: '-' },
-    { id: 'MBR-1013', username: 'PUTU_BAGUS', name: 'I Putu Bagus Deva Pradana', status: 'AKTIF', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: '-' },
-    { id: 'MBR-1014', username: 'SHENDY_LF', name: 'Shendy Lefrant Frizzy', status: 'AKTIF', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: '-' },
-    { id: 'MBR-1015', username: 'FERRY_ARD', name: 'Ferry Ardiyansyah', status: 'AKTIF', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: '-' },
-    { id: 'MBR-1016', username: 'AHMAD_FAJAR', name: 'Ahmad Fajarudin', status: 'AKTIF', role: 'VIP', checked: true, checkedAt: '19/08/2026 21:00', checkedBy: 'KAPTEN (Agus)', notes: '-' },
-    { id: 'MBR-1017', username: 'MEDIK_JAYA', name: 'Medik Sudrajat', status: 'SUSPENDED', role: 'REGULER', checked: false, checkedAt: '-', checkedBy: '-', notes: 'Indikasi duplicate akun' }
-  ],
-  transactions: [
-    { id: 'TRX-9012', time: '19/08/2026 21:42', type: 'WITHDRAW', bank: 'BCA (7125810250)', memberName: 'Ratnasari Dewi', amount: '2.500.000', status: 'SELESAI', cashier: 'Dewi Lestari' },
-    { id: 'TRX-9011', time: '19/08/2026 21:35', type: 'DEPOSIT', bank: 'MANDIRI (1560027113317)', memberName: 'Andi Saputra', amount: '1.000.000', status: 'SELESAI', cashier: 'Dewi Lestari' },
-    { id: 'TRX-9010', time: '19/08/2026 21:20', type: 'WITHDRAW', bank: 'BRI (033201163544500)', memberName: 'Faizal Auliadi', amount: '750.000', status: 'PROSES', cashier: 'Dewi Lestari' },
-    { id: 'TRX-9009', time: '19/08/2026 20:55', type: 'DEPOSIT', bank: 'BCA (5875721183)', memberName: 'Dede Budiyanto', amount: '5.000.000', status: 'SELESAI', cashier: 'Dewi Lestari' },
-    { id: 'TRX-9008', time: '19/08/2026 20:30', type: 'KAS_KECIL', bank: 'BCA KAS OFFICE', memberName: 'Operasional Kantor', amount: '350.000', status: 'SELESAI', cashier: 'Dewi Lestari' }
-  ],
-  logs: [
-    {
-      id: 'LOG-001',
-      timestamp: '19/08/2026 21:45:12',
-      user: 'Bambang Sudirjo',
-      role: 'LEADER',
-      action: 'CHECK_MEMBER',
-      formatText: 'LEADER - RATNASARI88 - SUDAH DI CEK - 19/08/2026 21:45',
-      detail: 'Status pengecekan member diubah menjadi SUDAH DI CEK'
-    },
-    {
-      id: 'LOG-002',
-      timestamp: '19/08/2026 21:40:05',
-      user: 'Siti Rahmawati',
-      role: 'CS',
-      action: 'LOGIN',
-      formatText: 'CS - cs_support - LOGIN - 19/08/2026 21:40',
-      detail: 'Login ke dashboard monitoring'
-    },
-    {
-      id: 'LOG-003',
-      timestamp: '19/08/2026 21:10:33',
-      user: 'Siti Rahmawati',
-      role: 'CS',
-      action: 'CHECK_MEMBER',
-      formatText: 'CS - RAFI_GHIFARI - SUDAH DI CEK - 19/08/2026 21:10',
-      detail: 'Pengecekan member Muhamad Rafi Al Ghifari'
-    },
-    {
-      id: 'LOG-004',
-      timestamp: '19/08/2026 20:30:19',
-      user: 'Agus Maulana',
-      role: 'KAPTEN',
-      action: 'CHECK_MEMBER',
-      formatText: 'KAPTEN - DEDE_BUDI - SUDAH DI CEK - 19/08/2026 20:30',
-      detail: 'Pengecekan member Dede Budiyanto'
-    },
-    {
-      id: 'LOG-005',
-      timestamp: '19/08/2026 20:00:00',
-      user: 'Rizky Prayogi',
-      role: 'SUPER MASTER',
-      action: 'CHANGE_ROLE',
-      formatText: 'SUPER MASTER - MEMBER123 - ROLE DIUBAH KE VIP - 19/08/2026 20:00',
-      detail: 'Mengubah level member MEMBER123 dari REGULER menjadi VIP'
-    }
-  ]
-};
+let heartbeatTimer = null;
 
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
-document.addEventListener('DOMContentLoaded', () => {
-  initApp();
-});
+document.addEventListener('DOMContentLoaded', init);
 
-function initApp() {
-  loadCustomLogo();
-  loadStoredData();
-  bindGlobalEvents();
+async function init() {
+  bindEvents();
   startClock();
+  loadCustomLogo();
 
-  // Check existing session
-  const storedSession = localStorage.getItem(CONFIG.SESSION_KEY);
-  if (storedSession) {
+  // Load custom API URL if stored
+  const customApi = localStorage.getItem('custom_api_url');
+  if (customApi) CONFIG.API_URL = customApi;
+  const apiUrlInput = document.getElementById('settingApiUrl');
+  if (apiUrlInput) apiUrlInput.value = CONFIG.API_URL;
+
+  if (STATE.sessionToken) {
     try {
-      const sessionData = JSON.parse(storedSession);
-      STATE.currentUser = sessionData.user;
-      STATE.sessionToken = sessionData.token;
-      showDashboardApp();
-      return;
+      showTopProgress();
+      await fetchDashboardData();
+      showDashboard();
+      startHeartbeat();
     } catch (e) {
-      clearSession();
+      console.warn('Session check fallback:', e.message);
+      loadFallbackData();
+      showDashboard();
+    } finally {
+      hideTopProgress();
     }
+  } else {
+    showLogin();
   }
-
-  showLoginScreen();
 }
 
 // ============================================================================
-// STORAGE & DATA ENGINE (LOCAL + REMOTE APPS SCRIPT)
+// API TRANSPORT (JSONP & ASYNC CALLS TO APPS SCRIPT)
 // ============================================================================
-function loadStoredData() {
-  const cachedData = localStorage.getItem(CONFIG.CACHE_KEY);
-  if (cachedData) {
-    try {
-      const parsed = JSON.parse(cachedData);
-      STATE.members = parsed.members || SEED_DATA.members;
-      STATE.users = parsed.users || SEED_DATA.users;
-      STATE.transactions = parsed.transactions || SEED_DATA.transactions;
-      STATE.logs = parsed.logs || SEED_DATA.logs;
-      return;
-    } catch (e) {
-      console.warn('Gagal membaca cache lokal, menggunakan seed data:', e);
-    }
-  }
+function api(action, data = {}) {
+  return new Promise((resolve, reject) => {
+    if (!CONFIG.API_URL) return reject(new Error('API_URL belum diatur di config.js'));
 
-  // Use Seed Data
-  STATE.members = [...SEED_DATA.members];
-  STATE.users = [...SEED_DATA.users];
-  STATE.transactions = [...SEED_DATA.transactions];
-  STATE.logs = [...SEED_DATA.logs];
-  saveToCache();
-}
+    const id = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+    const callbackName = '__officeApi_' + id;
+    const script = document.createElement('script');
+    const params = new URLSearchParams();
 
-function saveToCache() {
-  const payload = {
-    members: STATE.members,
-    users: STATE.users,
-    transactions: STATE.transactions,
-    logs: STATE.logs,
-    updatedAt: new Date().toISOString()
-  };
-  localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify(payload));
+    params.set('action', action);
+    params.set('token', STATE.sessionToken || '');
+    params.set('callback', callbackName);
+    params.set('_', Date.now().toString());
+
+    Object.entries(data || {}).forEach(([key, val]) => {
+      params.set(key, String(val ?? ''));
+    });
+
+    let finished = false;
+    const finish = (fn, val) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      delete window[callbackName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      fn(val);
+    };
+
+    window[callbackName] = (payload) => {
+      if (payload && payload.success) finish(resolve, payload.data);
+      else finish(reject, new Error(payload?.message || 'API Error'));
+    };
+
+    script.src = CONFIG.API_URL + '?' + params.toString();
+    script.onerror = () => finish(reject, new Error('Koneksi ke Apps Script gagal.'));
+
+    document.head.appendChild(script);
+
+    // Timeout 15 Detik
+    const timer = setTimeout(() => {
+      finish(reject, new Error('Timeout koneksi Apps Script.'));
+    }, 15000);
+  });
 }
 
 // ============================================================================
 // EVENT BINDINGS
 // ============================================================================
-function bindGlobalEvents() {
+function bindEvents() {
   // Login form
   const loginForm = document.getElementById('loginForm');
   if (loginForm) loginForm.addEventListener('submit', handleLogin);
-
-  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-  if (togglePasswordBtn) {
-    togglePasswordBtn.addEventListener('click', () => {
-      const pwdInput = document.getElementById('loginPassword');
-      if (pwdInput.type === 'password') {
-        pwdInput.type = 'text';
-        togglePasswordBtn.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
-      } else {
-        pwdInput.type = 'password';
-        togglePasswordBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
-      }
-    });
-  }
 
   // Logout
   const logoutBtn = document.getElementById('logoutBtn');
@@ -244,7 +159,6 @@ function bindGlobalEvents() {
     btn.addEventListener('click', () => {
       const pageId = btn.dataset.page;
       if (pageId) navigateToPage(pageId);
-      // Close mobile sidebar if open
       if (window.innerWidth <= 768) {
         mainSidebar.classList.remove('open');
         sidebarOverlay.classList.remove('active');
@@ -252,266 +166,169 @@ function bindGlobalEvents() {
     });
   });
 
-  // Realtime Member Search & Filters
-  const memberSearchInput = document.getElementById('memberSearchInput');
-  const clearMemberSearchBtn = document.getElementById('clearMemberSearchBtn');
-  if (memberSearchInput) {
-    memberSearchInput.addEventListener('input', debounce((e) => {
-      STATE.memberSearchQuery = e.target.value.trim();
-      STATE.memberPage = 1;
-      if (clearMemberSearchBtn) {
-        clearMemberSearchBtn.classList.toggle('hidden', !STATE.memberSearchQuery);
-      }
-      renderMemberTable();
-    }, 150));
+  // Realtime HP Search & Filters
+  const hpSearchInput = document.getElementById('hpSearchInput');
+  const clearHpSearchBtn = document.getElementById('clearHpSearchBtn');
+  if (hpSearchInput) {
+    hpSearchInput.addEventListener('input', debounce((e) => {
+      STATE.searchQuery = e.target.value.trim();
+      STATE.currentPage = 1;
+      if (clearHpSearchBtn) clearHpSearchBtn.classList.toggle('hidden', !STATE.searchQuery);
+      filterAndRenderHp();
+    }, 120));
   }
 
-  if (clearMemberSearchBtn) {
-    clearMemberSearchBtn.addEventListener('click', () => {
-      memberSearchInput.value = '';
-      STATE.memberSearchQuery = '';
-      STATE.memberPage = 1;
-      clearMemberSearchBtn.classList.add('hidden');
-      renderMemberTable();
+  if (clearHpSearchBtn) {
+    clearHpSearchBtn.addEventListener('click', () => {
+      hpSearchInput.value = '';
+      STATE.searchQuery = '';
+      STATE.currentPage = 1;
+      clearHpSearchBtn.classList.add('hidden');
+      filterAndRenderHp();
     });
   }
 
-  const memberCheckStatusFilter = document.getElementById('memberCheckStatusFilter');
-  if (memberCheckStatusFilter) {
-    memberCheckStatusFilter.addEventListener('change', (e) => {
-      STATE.memberCheckStatusFilter = e.target.value;
-      STATE.memberPage = 1;
-      renderMemberTable();
+  const hpCheckFilter = document.getElementById('hpCheckFilter');
+  if (hpCheckFilter) {
+    hpCheckFilter.addEventListener('change', (e) => {
+      STATE.checkFilter = e.target.value;
+      STATE.currentPage = 1;
+      filterAndRenderHp();
     });
   }
 
-  const memberRoleFilter = document.getElementById('memberRoleFilter');
-  if (memberRoleFilter) {
-    memberRoleFilter.addEventListener('change', (e) => {
-      STATE.memberRoleFilter = e.target.value;
-      STATE.memberPage = 1;
-      renderMemberTable();
+  const hpBankFilter = document.getElementById('hpBankFilter');
+  if (hpBankFilter) {
+    hpBankFilter.addEventListener('change', (e) => {
+      STATE.bankFilter = e.target.value;
+      STATE.currentPage = 1;
+      filterAndRenderHp();
     });
   }
 
-  const memberStatusFilter = document.getElementById('memberStatusFilter');
-  if (memberStatusFilter) {
-    memberStatusFilter.addEventListener('change', (e) => {
-      STATE.memberStatusFilter = e.target.value;
-      STATE.memberPage = 1;
-      renderMemberTable();
+  const hpPageSizeSelect = document.getElementById('hpPageSizeSelect');
+  if (hpPageSizeSelect) {
+    hpPageSizeSelect.addEventListener('change', (e) => {
+      STATE.pageSize = parseInt(e.target.value, 10) || 10;
+      STATE.currentPage = 1;
+      filterAndRenderHp();
     });
   }
 
-  const memberPageSizeSelect = document.getElementById('memberPageSizeSelect');
-  if (memberPageSizeSelect) {
-    memberPageSizeSelect.addEventListener('change', (e) => {
-      STATE.memberPageSize = parseInt(e.target.value, 10) || 10;
-      STATE.memberPage = 1;
-      renderMemberTable();
-    });
-  }
-
-  // Refresh Members Button
-  const refreshMembersBtn = document.getElementById('refreshMembersBtn');
-  if (refreshMembersBtn) {
-    refreshMembersBtn.addEventListener('click', () => {
-      showTopProgress();
-      renderMemberTable();
-      renderStats();
-      showToast('Data member berhasil dimuat ulang (0ms)', 'success');
-      hideTopProgress();
-    });
-  }
-
-  // Add Member Button
-  const addNewMemberBtn = document.getElementById('addNewMemberBtn');
-  if (addNewMemberBtn) {
-    addNewMemberBtn.addEventListener('click', openAddMemberModal);
-  }
-
-  // Export CSV Button
-  const exportMembersBtn = document.getElementById('exportMembersBtn');
-  if (exportMembersBtn) {
-    exportMembersBtn.addEventListener('click', exportMembersToCSV);
-  }
-
-  // Save Member Form
-  const memberForm = document.getElementById('memberForm');
-  if (memberForm) {
-    memberForm.addEventListener('submit', handleSaveMember);
-  }
-
-  // Confirm Change Role Button
-  const confirmChangeRoleBtn = document.getElementById('confirmChangeRoleBtn');
-  if (confirmChangeRoleBtn) {
-    confirmChangeRoleBtn.addEventListener('click', handleConfirmChangeRole);
-  }
-
-  // Logs Search & Filter
+  // Logs Search
   const logSearchInput = document.getElementById('logSearchInput');
   if (logSearchInput) {
     logSearchInput.addEventListener('input', debounce((e) => {
-      STATE.logSearchQuery = e.target.value.trim();
-      renderLogsTable();
+      renderLogsTable(e.target.value.trim());
     }, 150));
   }
 
-  const logActionFilter = document.getElementById('logActionFilter');
-  if (logActionFilter) {
-    logActionFilter.addEventListener('change', (e) => {
-      STATE.logActionFilter = e.target.value;
-      renderLogsTable();
-    });
-  }
-
-  const clearLogsBtn = document.getElementById('clearLogsBtn');
-  if (clearLogsBtn) {
-    clearLogsBtn.addEventListener('click', () => {
-      renderLogsTable();
-      showToast('Log aktivitas diperbarui', 'info');
-    });
-  }
-
-  // Custom Logo File Input
+  // Logo file upload
   const logoFileInput = document.getElementById('logoFileInput');
-  if (logoFileInput) {
-    logoFileInput.addEventListener('change', handleLogoFileUpload);
-  }
+  if (logoFileInput) logoFileInput.addEventListener('change', handleLogoUpload);
 }
 
 // ============================================================================
-// AUTHENTICATION & ROLE-BASED ACCESS CONTROL (RBAC)
+// AUTHENTICATION
 // ============================================================================
-function fillLogin(username, password) {
-  document.getElementById('loginUsername').value = username;
-  document.getElementById('loginPassword').value = password;
+function quickFillEmail(email) {
+  const input = document.getElementById('loginEmail');
+  if (input) input.value = email;
   hideLoginAlert();
 }
 
 async function handleLogin(e) {
   if (e) e.preventDefault();
-  const usernameInput = document.getElementById('loginUsername');
-  const passwordInput = document.getElementById('loginPassword');
+  const emailInput = document.getElementById('loginEmail');
   const submitBtn = document.getElementById('loginSubmitBtn');
-  const alertBox = document.getElementById('loginAlert');
-  const alertText = document.getElementById('loginAlertText');
+  const email = (emailInput?.value || '').trim();
 
-  const username = (usernameInput.value || '').trim();
-  const password = (passwordInput.value || '').trim();
-
-  if (!username || !password) {
-    showLoginAlert('Username / email dan password wajib diisi');
+  if (!email) {
+    showLoginAlert('Masukkan email yang terdaftar pada Sheet Users.');
     return;
   }
 
-  // Visual loading
   submitBtn.querySelector('.btn-text').classList.add('hidden');
   submitBtn.querySelector('.btn-spinner').classList.remove('hidden');
   submitBtn.disabled = true;
 
   try {
-    // 1. Check local seed/users first for instant zero-latency authentication
-    let matchedUser = STATE.users.find(u => 
-      u.username.toLowerCase() === username.toLowerCase() ||
-      (u.email && u.email.toLowerCase() === username.toLowerCase())
-    );
+    showTopProgress();
+    // Panggil login API
+    const res = await api('login', { email: email });
+    if (!res || !res.token) throw new Error('Login gagal: Session token tidak dibuat.');
 
-    // 2. If not found in users list, map demo fallback
-    if (!matchedUser) {
-      if (username.toLowerCase().includes('master')) {
-        matchedUser = { id: 'USR-MASTER', username: username, name: 'Super Master Staff', role: 'SUPER MASTER', status: 'AKTIF' };
-      } else if (username.toLowerCase().includes('leader')) {
-        matchedUser = { id: 'USR-LEADER', username: username, name: 'Leader Staff', role: 'LEADER', status: 'AKTIF' };
-      } else if (username.toLowerCase().includes('cs')) {
-        matchedUser = { id: 'USR-CS', username: username, name: 'CS Staff', role: 'CS', status: 'AKTIF' };
-      } else if (username.toLowerCase().includes('kapten')) {
-        matchedUser = { id: 'USR-KAPTEN', username: username, name: 'Kapten Staff', role: 'KAPTEN', status: 'AKTIF' };
-      } else if (username.toLowerCase().includes('kasir')) {
-        matchedUser = { id: 'USR-KASIR', username: username, name: 'Kasir Staff', role: 'KASIR', status: 'AKTIF' };
-      } else {
-        throw new Error('Akun tidak ditemukan. Silakan hubungi Super Master / Leader.');
-      }
-    }
+    STATE.sessionToken = res.token;
+    STATE.currentUser = res.user;
+    localStorage.setItem(CONFIG.SESSION_KEY, res.token);
 
-    if (matchedUser.status && matchedUser.status !== 'AKTIF') {
-      throw new Error('Akun Anda berstatus ' + matchedUser.status + '. Akses dinonaktifkan.');
-    }
-
-    // Login successful
-    const token = 'SES_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    STATE.currentUser = matchedUser;
-    STATE.sessionToken = token;
-
-    // Save session
-    localStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify({ user: matchedUser, token }));
-
-    // Record Activity Log
-    recordActivityLog('LOGIN', `${matchedUser.role} - ${matchedUser.username} - LOGIN - ${formatTimestamp(new Date())}`, `Login berhasil sebagai ${matchedUser.role}`);
-
-    // Update presence
-    updateOnlinePresence();
-
-    showDashboardApp();
-    showToast(`Selamat datang, ${matchedUser.name}! (Role: ${matchedUser.role})`, 'success');
-
+    // Ambil data dashboard lengkap
+    await fetchDashboardData();
+    showDashboard();
+    startHeartbeat();
+    showToast(`Selamat datang, ${res.user.name}! (Role: ${res.user.role})`, 'success');
   } catch (err) {
-    showLoginAlert(err.message || 'Login gagal');
+    console.warn('Online login error, checking local fallback:', err.message);
+    // Fallback login lokal jika offline
+    let role = 'CS';
+    if (email.includes('rizky') || email.includes('master') || email.includes('admin')) role = 'SUPER MASTER';
+    else if (email.includes('leader')) role = 'LEADER';
+    else if (email.includes('kapten')) role = 'KAPTEN';
+    else if (email.includes('kasir')) role = 'KASIR';
+
+    STATE.currentUser = { email: email, name: email.split('@')[0].toUpperCase(), role: role };
+    STATE.sessionToken = 'LOCAL_TOKEN_' + Date.now();
+    localStorage.setItem(CONFIG.SESSION_KEY, STATE.sessionToken);
+
+    loadFallbackData();
+    showDashboard();
+    showToast(`Mode Standalone: Login sebagai ${role}`, 'info');
   } finally {
     submitBtn.querySelector('.btn-text').classList.remove('hidden');
     submitBtn.querySelector('.btn-spinner').classList.add('hidden');
     submitBtn.disabled = false;
+    hideTopProgress();
   }
 }
 
-function handleLogout() {
-  if (STATE.currentUser) {
-    recordActivityLog('LOGOUT', `${STATE.currentUser.role} - ${STATE.currentUser.username} - LOGOUT - ${formatTimestamp(new Date())}`, `User logout dari sesi`);
+async function handleLogout() {
+  try {
+    showTopProgress();
+    if (STATE.sessionToken) await api('logout');
+  } catch (e) {
+  } finally {
+    stopHeartbeat();
+    STATE.sessionToken = '';
+    STATE.currentUser = null;
+    localStorage.removeItem(CONFIG.SESSION_KEY);
+    showLogin();
+    hideTopProgress();
+    showToast('Anda telah logout.', 'info');
   }
-  clearSession();
-  showLoginScreen();
-  showToast('Anda telah keluar dari dashboard', 'info');
 }
 
-function clearSession() {
-  STATE.currentUser = null;
-  STATE.sessionToken = null;
-  localStorage.removeItem(CONFIG.SESSION_KEY);
-}
-
-function showLoginScreen() {
+function showLogin() {
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('app').classList.add('hidden');
   hideLoginAlert();
 }
 
-function showDashboardApp() {
+function showDashboard() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  
   applyRolePermissions();
-  renderUserProfileInfo();
+  renderUserProfile();
+  renderShiftBanner();
+  renderCategoryTabs();
+  filterAndRenderHp();
   renderStats();
-  renderMemberTable();
-  renderTransactionsTable();
   renderUsersTable();
   renderLogsTable();
-  updateOnlinePresence();
-
-  // Set default accessible landing page
-  if (['SUPER MASTER', 'LEADER', 'CS', 'KAPTEN'].includes(STATE.currentUser.role)) {
-    navigateToPage('members');
-  } else if (STATE.currentUser.role === 'KASIR') {
-    navigateToPage('transactions');
-  } else {
-    navigateToPage('overview');
-  }
 }
 
 function showLoginAlert(msg) {
   const alertBox = document.getElementById('loginAlert');
-  const alertText = document.getElementById('loginAlertText');
-  alertText.textContent = msg;
+  document.getElementById('loginAlertText').textContent = msg;
   alertBox.classList.remove('hidden');
 }
 
@@ -521,59 +338,89 @@ function hideLoginAlert() {
 }
 
 // ============================================================================
-// ROLE PERMISSION MATRIX & UI GATEKEEPER
+// DATA SYNC WITH GOOGLE SHEETS
+// ============================================================================
+async function fetchDashboardData() {
+  const res = await api('getDashboard');
+  if (!res) throw new Error('Data dashboard kosong.');
+
+  STATE.currentUser = res.user || STATE.currentUser;
+  STATE.shift = res.shift || STATE.shift;
+  STATE.onlineUsers = res.online || [];
+
+  const d = res.data || {};
+  STATE.withdrawData = d.withdraw || [];
+  STATE.depoData = d.depo || [];
+  STATE.bankKasData = d.bankKas || [];
+  STATE.tokenData = d.token || [];
+  STATE.allData = d.all || [].concat(STATE.withdrawData, STATE.depoData, STATE.bankKasData, STATE.tokenData);
+
+  // Simpan ke cache lokal
+  localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify({
+    all: STATE.allData,
+    withdraw: STATE.withdrawData,
+    depo: STATE.depoData,
+    bankKas: STATE.bankKasData,
+    token: STATE.tokenData,
+    shift: STATE.shift,
+    user: STATE.currentUser
+  }));
+}
+
+async function refreshDashboardData() {
+  showTopProgress();
+  try {
+    await fetchDashboardData();
+    renderShiftBanner();
+    renderCategoryTabs();
+    filterAndRenderHp();
+    renderStats();
+    showToast('✓ Data berhasil disinkronkan dari Sheet DATA BANK!', 'success');
+  } catch (err) {
+    showToast('Gagal sinkron: ' + err.message, 'danger');
+  } finally {
+    hideTopProgress();
+  }
+}
+
+// ============================================================================
+// ROLE PERMISSION MATRIX
 // ============================================================================
 function applyRolePermissions() {
-  const role = STATE.currentUser?.role || 'REGULER';
-
-  // Elements to control by Role
-  const navOverview = document.getElementById('navOverview');
-  const navMembers = document.getElementById('navMembers');
-  const navTransactions = document.getElementById('navTransactions');
+  const role = (STATE.currentUser?.role || 'CS').toUpperCase();
+  const shiftActions = document.getElementById('shiftAdminActions');
   const navUsers = document.getElementById('navUsers');
   const navLogs = document.getElementById('navLogs');
   const navSettings = document.getElementById('navSettings');
   const navSectionAdmin = document.getElementById('navSectionAdmin');
-  const addNewMemberBtn = document.getElementById('addNewMemberBtn');
-  const btnAddNewUser = document.getElementById('btnAddNewUser');
 
-  // Reset visibility
-  [navOverview, navMembers, navTransactions, navUsers, navLogs, navSettings, navSectionAdmin].forEach(el => {
-    if (el) el.classList.remove('hidden');
-  });
-
-  // 1. SUPER MASTER: Full Access to everything
+  // SUPER MASTER: Full Access
   if (role === 'SUPER MASTER') {
-    // Has full access
-    if (addNewMemberBtn) addNewMemberBtn.classList.remove('hidden');
-    if (btnAddNewUser) btnAddNewUser.classList.remove('hidden');
+    if (shiftActions) shiftActions.style.display = 'block';
+    if (navUsers) navUsers.classList.remove('hidden');
+    if (navLogs) navLogs.classList.remove('hidden');
+    if (navSettings) navSettings.classList.remove('hidden');
+    if (navSectionAdmin) navSectionAdmin.classList.remove('hidden');
   }
-  // 2. LEADER: View all data, change roles, view activity logs
+  // LEADER: Full View, Ubah Role, Audit Log
   else if (role === 'LEADER') {
-    if (navSettings) navSettings.classList.add('hidden'); // Only Super Master gets system setting
-    if (addNewMemberBtn) addNewMemberBtn.classList.remove('hidden');
-    if (btnAddNewUser) btnAddNewUser.classList.remove('hidden');
-  }
-  // 3. CS: Focus on member data and member checking
-  else if (role === 'CS') {
-    if (navTransactions) navTransactions.classList.add('hidden');
-    if (navUsers) navUsers.classList.add('hidden');
-    if (navLogs) navLogs.classList.add('hidden');
+    if (shiftActions) shiftActions.style.display = 'block';
+    if (navUsers) navUsers.classList.remove('hidden');
+    if (navLogs) navLogs.classList.remove('hidden');
     if (navSettings) navSettings.classList.add('hidden');
-    if (navSectionAdmin) navSectionAdmin.classList.add('hidden');
-    if (addNewMemberBtn) addNewMemberBtn.classList.remove('hidden');
+    if (navSectionAdmin) navSectionAdmin.classList.remove('hidden');
   }
-  // 4. KAPTEN: Focus on monitoring & member checking
-  else if (role === 'KAPTEN') {
-    if (navTransactions) navTransactions.classList.add('hidden');
+  // CS & KAPTEN: Fokus Pengecekan
+  else if (role === 'CS' || role === 'KAPTEN') {
+    if (shiftActions) shiftActions.style.display = 'none';
     if (navUsers) navUsers.classList.add('hidden');
     if (navLogs) navLogs.classList.add('hidden');
     if (navSettings) navSettings.classList.add('hidden');
     if (navSectionAdmin) navSectionAdmin.classList.add('hidden');
   }
-  // 5. KASIR: Focus on transaction data & cashier desk
+  // KASIR: Fokus Kas & Transaksi
   else if (role === 'KASIR') {
-    if (navMembers) navMembers.classList.add('hidden');
+    if (shiftActions) shiftActions.style.display = 'none';
     if (navUsers) navUsers.classList.add('hidden');
     if (navLogs) navLogs.classList.add('hidden');
     if (navSettings) navSettings.classList.add('hidden');
@@ -581,22 +428,18 @@ function applyRolePermissions() {
   }
 }
 
-function renderUserProfileInfo() {
-  const user = STATE.currentUser;
-  if (!user) return;
+function renderUserProfile() {
+  const user = STATE.currentUser || { email: 'user@office.local', name: 'User', role: 'CS' };
+  const initial = (user.name || user.email).charAt(0).toUpperCase();
 
-  const initial = (user.name || user.username || 'U').charAt(0).toUpperCase();
-
-  // Sidebar
-  document.getElementById('sidebarUserName').textContent = user.name || user.username;
+  document.getElementById('sidebarUserName').textContent = user.name || user.email;
   document.getElementById('sidebarUserRole').textContent = user.role;
   document.getElementById('sidebarUserInitial').textContent = initial;
 
-  // Topbar
-  document.getElementById('topbarUserName').textContent = user.name || user.username;
-  const topbarRole = document.getElementById('topbarUserRole');
-  topbarRole.textContent = user.role;
-  topbarRole.className = `profile-role-mini badge-role ${getRoleBadgeClass(user.role)}`;
+  document.getElementById('topbarUserName').textContent = user.name || user.email;
+  const topRole = document.getElementById('topbarUserRole');
+  topRole.textContent = user.role;
+  topRole.className = `profile-role-mini badge-role ${getRoleBadgeClass(user.role)}`;
   document.getElementById('topbarUserInitial').textContent = initial;
 }
 
@@ -607,210 +450,113 @@ function getRoleBadgeClass(role) {
     case 'CS': return 'cs';
     case 'KAPTEN': return 'kapten';
     case 'KASIR': return 'kasir';
-    case 'VIP': return 'vip';
     default: return 'reguler';
   }
 }
 
 // ============================================================================
-// NAVIGATION & PAGE ROUTING
+// SHIFT BANNER & CONTROLS
 // ============================================================================
-function navigateToPage(pageId, options = {}) {
-  STATE.activePage = pageId;
+function renderShiftBanner() {
+  const s = STATE.shift || { shift: 'SHIFT 1', startTime: '19/08/2026', startedBy: 'SYSTEM' };
+  document.getElementById('shiftBadge').textContent = s.shift;
+  document.getElementById('shiftInfoText').textContent = `Dimulai: ${s.startTime} • Oleh: ${s.startedBy}`;
+}
 
-  // Update Nav Links
-  document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
-    link.classList.toggle('active', link.dataset.page === pageId);
+async function handleNewShift() {
+  const current = STATE.shift.shift || 'SHIFT 1';
+  const match = current.match(/(\d+)/);
+  const next = `SHIFT ${match ? Number(match[1]) + 1 : 2}`;
+  
+  const shiftName = prompt('Mulai Shift Baru (Nama Shift):', next);
+  if (!shiftName) return;
+
+  if (!confirm(`Mulai ${shiftName}? Seluruh status kelengkapan HP akan di-reset (BELUM DI CEK) untuk shift baru.`)) {
+    return;
+  }
+
+  showTopProgress();
+  try {
+    await api('startNewShift', { shift: shiftName });
+    showToast(`✓ ${shiftName} berhasil dimulai! Seluruh HP siap dicek.`, 'success');
+    await refreshDashboardData();
+  } catch (err) {
+    showToast('Gagal memulai shift baru: ' + err.message, 'danger');
+  } finally {
+    hideTopProgress();
+  }
+}
+
+// ============================================================================
+// CATEGORY TABS & FILTERING
+// ============================================================================
+function switchCategory(cat) {
+  STATE.activeCategory = cat;
+  STATE.currentPage = 1;
+
+  document.querySelectorAll('.category-tabs-bar .tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.cat === cat);
   });
 
-  // Hide all pages
-  document.querySelectorAll('.app-page').forEach(page => {
-    page.classList.add('hidden');
-  });
+  filterAndRenderHp();
+}
 
-  // Update Page Title
-  const titleEl = document.getElementById('currentPageTitle');
-  const subEl = document.getElementById('currentPageSubtitle');
-
-  switch (pageId) {
-    case 'overview':
-      document.getElementById('pageOverview').classList.remove('hidden');
-      titleEl.textContent = 'Ringkasan Dashboard';
-      subEl.textContent = 'Statistik umum member, transaksi, dan aktivitas operasional';
-      renderStats();
-      renderQuickDashboard();
-      break;
-
-    case 'members':
-      document.getElementById('pageMembers').classList.remove('hidden');
-      titleEl.textContent = 'Monitoring Data Member';
-      subEl.textContent = 'Pengecekan dan verifikasi data member secara cepat dan akurat';
-      if (options.filter) {
-        document.getElementById('memberCheckStatusFilter').value = options.filter;
-        STATE.memberCheckStatusFilter = options.filter;
-      }
-      renderMemberTable();
-      break;
-
-    case 'transactions':
-      document.getElementById('pageTransactions').classList.remove('hidden');
-      titleEl.textContent = 'Data Kasir & Transaksi';
-      subEl.textContent = 'Kelola mutasi deposit, withdraw, dan pencatatan kasir';
-      renderTransactionsTable();
-      break;
-
-    case 'users':
-      document.getElementById('pageUsers').classList.remove('hidden');
-      titleEl.textContent = 'Kelola User & Role Akses';
-      subEl.textContent = 'Pengaturan level akses: Super Master, Leader, CS, Kapten, dan Kasir';
-      renderUsersTable();
-      break;
-
-    case 'logs':
-      document.getElementById('pageLogs').classList.remove('hidden');
-      titleEl.textContent = 'Log Aktivitas Sistem';
-      subEl.textContent = 'Audit trail realtime seluruh aktivitas login, pengecekan, dan perubahan role';
-      renderLogsTable();
-      break;
-
-    case 'settings':
-      document.getElementById('pageSettings').classList.remove('hidden');
-      titleEl.textContent = 'Pengaturan Sistem & Branding';
-      subEl.textContent = 'Kustomisasi logo, endpoint database, dan konfigurasi cache';
-      break;
+function getActiveCategoryData() {
+  switch (STATE.activeCategory) {
+    case 'withdraw': return STATE.withdrawData;
+    case 'depo': return STATE.depoData;
+    case 'bankKas': return STATE.bankKasData;
+    case 'token': return STATE.tokenData;
+    default: return STATE.allData;
   }
 }
 
-// ============================================================================
-// STATS & SUMMARY ENGINE
-// ============================================================================
-function renderStats() {
-  const total = STATE.members.length;
-  const checked = STATE.members.filter(m => m.checked).length;
-  const unchecked = total - checked;
-  const trxCount = STATE.transactions.length;
-
-  const totalEl = document.getElementById('statTotalMembers');
-  const uncheckedEl = document.getElementById('statUncheckedMembers');
-  const checkedEl = document.getElementById('statCheckedMembers');
-  const trxEl = document.getElementById('statTotalTransactions');
-  const progressEl = document.getElementById('statCheckProgress');
-  const navBadge = document.getElementById('navUncheckedCount');
-
-  if (totalEl) totalEl.textContent = total;
-  if (uncheckedEl) uncheckedEl.textContent = unchecked;
-  if (checkedEl) checkedEl.textContent = checked;
-  if (trxEl) trxEl.textContent = trxCount;
-
-  if (navBadge) {
-    navBadge.textContent = unchecked;
-    navBadge.classList.toggle('hidden', unchecked === 0);
-  }
-
-  if (progressEl) {
-    const pct = total > 0 ? Math.round((checked / total) * 100) : 100;
-    progressEl.innerHTML = `<i class="fa-solid fa-chart-line"></i> ${pct}% Terverifikasi (${checked}/${total})`;
-  }
-}
-
-function renderQuickDashboard() {
-  // Quick Unchecked Table
-  const tbody = document.getElementById('quickUncheckedTableBody');
-  const unchecked = STATE.members.filter(m => !m.checked).slice(0, 5);
-
-  if (tbody) {
-    if (unchecked.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--success); padding: 20px;"><i class="fa-solid fa-check-circle"></i> Semua member telah dicek!</td></tr>`;
-    } else {
-      tbody.innerHTML = unchecked.map(m => `
-        <tr>
-          <td><span class="member-id-cell">${esc(m.username || m.id)}</span></td>
-          <td><b>${esc(m.name)}</b></td>
-          <td><span class="badge-role ${getRoleBadgeClass(m.role)}">${esc(m.role || 'REGULER')}</span></td>
-          <td><span class="btn-check-status status-unchecked" style="cursor: default; pointer-events: none;"><i class="fa-solid fa-clock"></i> BELUM DI CEK</span></td>
-          <td>
-            <button class="btn-secondary-sm" onclick="instantCheckMember('${m.id}')">
-              <i class="fa-solid fa-check"></i> Cek Sekarang
-            </button>
-          </td>
-        </tr>
-      `).join('');
-    }
-  }
-
-  // Quick Activity Feed
-  const feed = document.getElementById('quickActivityFeed');
-  if (feed) {
-    const recentLogs = STATE.logs.slice(0, 5);
-    if (recentLogs.length === 0) {
-      feed.innerHTML = `<div class="text-muted text-sm" style="padding: 15px; text-align: center;">Belum ada log aktivitas</div>`;
-    } else {
-      feed.innerHTML = recentLogs.map(log => `
-        <div class="feed-item">
-          <div class="feed-icon ${getActivityIconBg(log.action)}">
-            <i class="${getActivityIcon(log.action)}"></i>
-          </div>
-          <div class="feed-content">
-            <span class="feed-title">${esc(log.formatText || log.detail)}</span>
-            <span class="feed-time"><i class="fa-regular fa-clock"></i> ${esc(log.timestamp)}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-  }
+function renderCategoryTabs() {
+  document.getElementById('countCatAll').textContent = STATE.allData.length;
+  document.getElementById('countCatWithdraw').textContent = STATE.withdrawData.length;
+  document.getElementById('countCatDepo').textContent = STATE.depoData.length;
+  document.getElementById('countCatBankKas').textContent = STATE.bankKasData.length;
+  document.getElementById('countCatToken').textContent = STATE.tokenData.length;
 }
 
 // ============================================================================
-// FAST REALTIME MEMBER MONITORING ENGINE
+// HIGH SPEED HP MONITORING TABLE (INSTANT CHECK NO RELOAD)
 // ============================================================================
-function renderMemberTable() {
-  const query = STATE.memberSearchQuery.toLowerCase();
-  const checkFilter = STATE.memberCheckStatusFilter;
-  const roleFilter = STATE.memberRoleFilter;
-  const statusFilter = STATE.memberStatusFilter;
+function filterAndRenderHp() {
+  const dataset = getActiveCategoryData();
+  const query = STATE.searchQuery.toLowerCase();
+  const checkFilter = STATE.checkFilter;
+  const bankFilter = STATE.bankFilter;
 
-  // 1. Ultra Fast In-Memory Filtering (0ms)
-  let filtered = STATE.members.filter(item => {
-    // Search Query across ID, username, name, checkedBy, notes
+  // In-Memory Fast Filter
+  const filtered = dataset.filter(item => {
     if (query) {
-      const matchText = `${item.id} ${item.username} ${item.name} ${item.checkedBy || ''} ${item.role || ''} ${item.status || ''}`.toLowerCase();
-      if (!matchText.includes(query)) return false;
+      const match = `${item.number} ${item.bank} ${item.name} ${item.category} ${item.checkedBy || ''}`.toLowerCase();
+      if (!match.includes(query)) return false;
     }
-
-    // Status Pengecekan Filter
-    if (checkFilter === 'BELUM_DICEK' && item.checked) return false;
-    if (checkFilter === 'SUDAH_DICEK' && !item.checked) return false;
-
-    // Role Filter
-    if (roleFilter !== 'ALL' && (item.role || '').toUpperCase() !== roleFilter) return false;
-
-    // Status Member Filter
-    if (statusFilter !== 'ALL' && (item.status || '').toUpperCase() !== statusFilter) return false;
-
+    if (checkFilter === 'UNCHECKED' && item.checked) return false;
+    if (checkFilter === 'CHECKED' && !item.checked) return false;
+    if (bankFilter !== 'ALL' && !item.bank.toUpperCase().includes(bankFilter)) return false;
     return true;
   });
 
-  STATE.filteredMembers = filtered;
-
-  // 2. Pagination Calculations
   const total = filtered.length;
-  const pageSize = STATE.memberPageSize;
+  const pageSize = STATE.pageSize;
   const totalPages = Math.ceil(total / pageSize) || 1;
 
-  if (STATE.memberPage > totalPages) STATE.memberPage = totalPages;
-  if (STATE.memberPage < 1) STATE.memberPage = 1;
+  if (STATE.currentPage > totalPages) STATE.currentPage = totalPages;
+  if (STATE.currentPage < 1) STATE.currentPage = 1;
 
-  const startIndex = (STATE.memberPage - 1) * pageSize;
+  const startIndex = (STATE.currentPage - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, total);
-  const pagedItems = filtered.slice(startIndex, endIndex);
+  const paged = filtered.slice(startIndex, endIndex);
 
-  // 3. Render Table Rows
-  const tbody = document.getElementById('memberTableBody');
-  const emptyState = document.getElementById('memberEmptyState');
-  const countSummary = document.getElementById('memberCountSummary');
+  const tbody = document.getElementById('hpTableBody');
+  const emptyState = document.getElementById('hpEmptyState');
+  const summary = document.getElementById('hpCountSummary');
 
-  if (countSummary) {
-    countSummary.textContent = `Menampilkan ${total === 0 ? 0 : startIndex + 1}-${endIndex} dari ${total} member (Total: ${STATE.members.length})`;
+  if (summary) {
+    summary.textContent = `Menampilkan ${total === 0 ? 0 : startIndex + 1}-${endIndex} dari ${total} perangkat (Total Kategori: ${dataset.length})`;
   }
 
   if (total === 0) {
@@ -819,82 +565,49 @@ function renderMemberTable() {
   } else {
     if (emptyState) emptyState.classList.add('hidden');
     if (tbody) {
-      const canChangeRole = ['SUPER MASTER', 'LEADER'].includes(STATE.currentUser?.role);
-      
-      tbody.innerHTML = pagedItems.map((m, idx) => {
+      const canEdit = ['SUPER MASTER', 'LEADER'].includes(STATE.currentUser?.role);
+
+      tbody.innerHTML = paged.map((item, idx) => {
         const rowNo = startIndex + idx + 1;
-        const isChecked = m.checked === true;
-        
-        // Status Pengecekan Interactive Button (NO CHECKBOX)
-        const checkStatusBtn = isChecked
-          ? `<button type="button" class="btn-check-status status-checked" onclick="toggleMemberCheck('${m.id}')" title="Klik untuk batalkan verifikasi">
+        const isChecked = item.checked === true;
+
+        // Tombol Status Pengecekan Interaktif (NO CHECKBOX)
+        const checkStatusButton = isChecked
+          ? `<button type="button" class="btn-check-status status-checked" onclick="updateHpCheck('${item.checkCell}', false, '${esc(item.name)}', '${item.category}')" title="Klik untuk membatalkan verifikasi">
               <i class="fa-solid fa-circle-check"></i> SUDAH DI CEK
              </button>`
-          : `<button type="button" class="btn-check-status status-unchecked" onclick="instantCheckMember('${m.id}')" title="Klik untuk verifikasi instan">
+          : `<button type="button" class="btn-check-status status-unchecked" onclick="updateHpCheck('${item.checkCell}', true, '${esc(item.name)}', '${item.category}')" title="Klik untuk verifikasi kelengkapan HP">
               <i class="fa-solid fa-clock-rotate-left"></i> BELUM DI CEK
              </button>`;
 
-        // Checker Attribution
-        const checkerHtml = isChecked && m.checkedBy && m.checkedBy !== '-'
-          ? `<div class="checker-info-wrap">
-              <span class="checker-name">${esc(m.checkedBy)}</span>
-             </div>`
+        const checkerHtml = isChecked && item.checkedBy && item.checkedBy !== '-'
+          ? `<span class="checker-name">${esc(item.checkedBy)}</span>`
           : `<span class="text-muted">-</span>`;
 
-        // Check Time
-        const checkTimeHtml = isChecked && m.checkedAt && m.checkedAt !== '-'
-          ? `<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${esc(m.checkedAt)}</span>`
+        const checkTimeHtml = isChecked && item.checkedAt && item.checkedAt !== '-'
+          ? `<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${esc(item.checkedAt)}</span>`
           : `<span class="text-muted">-</span>`;
-
-        // Quick Role Change Action for Leader / Super Master
-        const roleChangeBtn = canChangeRole
-          ? `<button type="button" class="btn-change-role-quick" onclick="openChangeRoleModal('${m.id}', '${esc(m.name)}', '${m.role || 'REGULER'}', 'MEMBER')" title="Ubah Role Member">
-              <i class="fa-solid fa-user-shield"></i> Ubah
-             </button>`
-          : '';
 
         return `
-          <tr id="row-member-${m.id}">
+          <tr id="row-hp-${item.checkCell}">
             <td style="color: var(--text-dim);">${rowNo}</td>
-            <td>
-              <div class="member-id-cell">
-                <span>${esc(m.username || m.id)}</span>
-                <button type="button" class="btn-copy-id" onclick="copyToClipboard('${esc(m.username || m.id)}')" title="Salin ID"><i class="fa-regular fa-copy"></i></button>
-              </div>
-            </td>
+            <td><span class="badge-pill bg-blue">${esc(item.category)}</span></td>
+            <td><b>${esc(item.bank)}</b></td>
             <td>
               <div class="member-name-wrap">
-                <span class="member-name-text">${esc(m.name)}</span>
-                ${m.notes ? `<small class="text-muted" style="font-size: 10px;">${esc(m.notes)}</small>` : ''}
+                <span class="member-name-text">${esc(item.name)}</span>
+                <small class="text-dim" style="font-size: 10px;">Cell: ${item.checkCell}</small>
               </div>
             </td>
-            <td>
-              <span class="status-pill ${(m.status || 'AKTIF').toLowerCase()}">
-                <i class="fa-solid fa-circle" style="font-size: 6px;"></i> ${esc(m.status || 'AKTIF')}
-              </span>
-            </td>
-            <td>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="badge-role ${getRoleBadgeClass(m.role)}">${esc(m.role || 'REGULER')}</span>
-                ${roleChangeBtn}
-              </div>
-            </td>
-            <td style="text-align: center;">
-              ${checkStatusBtn}
-            </td>
+            <td style="text-align: center;">${checkStatusButton}</td>
             <td>${checkTimeHtml}</td>
             <td>${checkerHtml}</td>
             <td style="text-align: right;">
-              <div class="table-action-group">
-                <button type="button" class="btn-table-action" onclick="openEditMemberModal('${m.id}')" title="Edit Data">
+              ${canEdit ? `
+                <button type="button" class="btn-table-action" onclick="openEditHpModal('${item.nameCell}', '${esc(item.name)}')" title="Edit Nama HP">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
-                ${STATE.currentUser?.role === 'SUPER MASTER' ? `
-                  <button type="button" class="btn-table-action" onclick="deleteMember('${m.id}')" title="Hapus Member" style="color: #f87171;">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </button>
-                ` : ''}
-              </div>
+              ` : '<span class="text-muted">-</span>'}
             </td>
           </tr>
         `;
@@ -902,132 +615,88 @@ function renderMemberTable() {
     }
   }
 
-  // 4. Render Pagination Controls
   renderPaginationControls(totalPages);
 }
 
 function renderPaginationControls(totalPages) {
-  const container = document.getElementById('memberPaginationControls');
+  const container = document.getElementById('hpPaginationControls');
   if (!container) return;
 
-  const current = STATE.memberPage;
-  let html = '';
+  const current = STATE.currentPage;
+  let html = `<button type="button" class="btn-page" ${current === 1 ? 'disabled' : ''} onclick="goToHpPage(${current - 1})"><i class="fa-solid fa-chevron-left"></i></button>`;
 
-  // Prev button
-  html += `<button type="button" class="btn-page" ${current === 1 ? 'disabled' : ''} onclick="goToMemberPage(${current - 1})" title="Halaman Sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>`;
-
-  // Page Numbers
   let startPage = Math.max(1, current - 2);
   let endPage = Math.min(totalPages, startPage + 4);
   if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
 
   for (let p = startPage; p <= endPage; p++) {
-    html += `<button type="button" class="btn-page ${p === current ? 'active' : ''}" onclick="goToMemberPage(${p})">${p}</button>`;
+    html += `<button type="button" class="btn-page ${p === current ? 'active' : ''}" onclick="goToHpPage(${p})">${p}</button>`;
   }
 
-  // Next button
-  html += `<button type="button" class="btn-page" ${current === totalPages ? 'disabled' : ''} onclick="goToMemberPage(${current + 1})" title="Halaman Selanjutnya"><i class="fa-solid fa-chevron-right"></i></button>`;
-
+  html += `<button type="button" class="btn-page" ${current === totalPages ? 'disabled' : ''} onclick="goToHpPage(${current + 1})"><i class="fa-solid fa-chevron-right"></i></button>`;
   container.innerHTML = html;
 }
 
-function goToMemberPage(page) {
-  STATE.memberPage = page;
-  renderMemberTable();
+function goToHpPage(page) {
+  STATE.currentPage = page;
+  filterAndRenderHp();
 }
 
-function resetMemberFilters() {
-  document.getElementById('memberSearchInput').value = '';
-  document.getElementById('memberCheckStatusFilter').value = 'ALL';
-  document.getElementById('memberRoleFilter').value = 'ALL';
-  document.getElementById('memberStatusFilter').value = 'ALL';
-  document.getElementById('clearMemberSearchBtn').classList.add('hidden');
+function resetHpFilters() {
+  document.getElementById('hpSearchInput').value = '';
+  document.getElementById('hpCheckFilter').value = 'ALL';
+  document.getElementById('hpBankFilter').value = 'ALL';
+  document.getElementById('clearHpSearchBtn').classList.add('hidden');
 
-  STATE.memberSearchQuery = '';
-  STATE.memberCheckStatusFilter = 'ALL';
-  STATE.memberRoleFilter = 'ALL';
-  STATE.memberStatusFilter = 'ALL';
-  STATE.memberPage = 1;
+  STATE.searchQuery = '';
+  STATE.checkFilter = 'ALL';
+  STATE.bankFilter = 'ALL';
+  STATE.currentPage = 1;
 
-  renderMemberTable();
+  filterAndRenderHp();
 }
 
 // ============================================================================
-// INSTANT MEMBER CHECKING WITHOUT RELOAD (HIGH SPEED ENGINE)
+// INSTANT UPDATE CHECK WITHOUT RELOAD (OPTIMISTIC UPDATE + ASYNC SYNC)
 // ============================================================================
-function instantCheckMember(memberId) {
-  const member = STATE.members.find(m => m.id === memberId);
-  if (!member) return;
+async function updateHpCheck(cell, isChecked, itemName, category) {
+  // 1. OPTIMISTIC UPDATE DI LOCAL STATE (0ms)
+  const user = STATE.currentUser || { name: 'Petugas', role: 'STAFF', email: 'staff' };
+  const ts = formatDateTime(new Date());
+  const checkerString = `${user.role} (${user.name || user.email})`;
 
-  const user = STATE.currentUser || { name: 'Petugas', role: 'STAFF', username: 'staff' };
-  const formattedTime = formatTimestamp(new Date());
-  const checkerString = `${user.role} (${user.name || user.username})`;
-
-  // 1. OPTIMISTIC UPDATE: Update state immediately in 0ms (no reload)
-  member.checked = true;
-  member.checkedAt = formattedTime;
-  member.checkedBy = checkerString;
-
-  // 2. Format standardized Activity Log as requested:
-  // Contoh log: LEADER - MEMBER123 - SUDAH DI CEK - 19/08/2026 21:45
-  const logFormatText = `${user.role} - ${member.username || member.id} - SUDAH DI CEK - ${formattedTime}`;
-  
-  recordActivityLog(
-    'CHECK_MEMBER',
-    logFormatText,
-    `Pengecekan member ${member.name} (${member.username || member.id}) status berubah menjadi SUDAH DI CEK`
-  );
-
-  // 3. Persist to cache & update UI instantly
-  saveToCache();
-  renderMemberTable();
-  renderStats();
-  renderQuickDashboard();
-
-  showToast(`✓ ${member.username || member.name} terverifikasi (SUDAH DI CEK)`, 'success');
-
-  // 4. Background Sync to Google Apps Script (asynchronous, doesn't block UI)
-  syncMemberCheckToBackend(member, true);
-}
-
-function toggleMemberCheck(memberId) {
-  const member = STATE.members.find(m => m.id === memberId);
-  if (!member) return;
-
-  // If already checked, ask or toggle back if authorized
-  if (confirm(`Batalkan status pengecekan untuk member ${member.name} (${member.username || member.id})?`)) {
-    const user = STATE.currentUser || { name: 'Petugas', role: 'STAFF', username: 'staff' };
-    const formattedTime = formatTimestamp(new Date());
-
-    member.checked = false;
-    member.checkedAt = '-';
-    member.checkedBy = '-';
-
-    const logFormatText = `${user.role} - ${member.username || member.id} - RESET BELUM DI CEK - ${formattedTime}`;
-    recordActivityLog('UNCHECK_MEMBER', logFormatText, `Pengecekan member ${member.name} dibatalkan`);
-
-    saveToCache();
-    renderMemberTable();
-    renderStats();
-    renderQuickDashboard();
-
-    showToast(`Status pengecekan ${member.username || member.name} dikembalikan ke BELUM DI CEK`, 'info');
-    syncMemberCheckToBackend(member, false);
+  function applyCheck(item) {
+    if (item.checkCell === cell) {
+      item.checked = isChecked;
+      item.checkedBy = isChecked ? checkerString : '-';
+      item.checkedAt = isChecked ? ts : '-';
+    }
   }
-}
 
-// Background sync function
-async function syncMemberCheckToBackend(member, checked) {
-  if (!CONFIG.API_URL) return;
+  STATE.allData.forEach(applyCheck);
+  STATE.withdrawData.forEach(applyCheck);
+  STATE.depoData.forEach(applyCheck);
+  STATE.bankKasData.forEach(applyCheck);
+  STATE.tokenData.forEach(applyCheck);
+
+  // Render seketika tanpa reload
+  filterAndRenderHp();
+  renderStats();
+  renderQuickOverview();
+
+  // Standardized Activity Log Format:
+  // Format: LEADER - MEMBER123 - SUDAH DI CEK - 19/08/2026 21:45
+  const logFormat = `${user.role} - ${itemName} - ${isChecked ? 'SUDAH DI CEK' : 'BELUM DI CEK'} - ${ts}`;
+  showToast(`✓ ${itemName} (${isChecked ? 'SUDAH DI CEK' : 'BELUM DI CEK'})`, isChecked ? 'success' : 'info');
+
+  // 2. ASYNC SYNC KE GOOGLE APPS SCRIPT (Background)
   try {
     showTopProgress();
-    // JSONP or Fetch to Apps Script
-    await callAppsScriptAPI('updateMemberCheck', {
-      memberId: member.id,
-      username: member.username,
-      checked: checked,
-      checkedBy: member.checkedBy,
-      checkedAt: member.checkedAt
+    await api('updateCheck', {
+      cell: cell,
+      checked: isChecked,
+      itemName: itemName,
+      category: category
     });
   } catch (err) {
     console.warn('Sync background notice:', err.message);
@@ -1037,466 +706,307 @@ async function syncMemberCheckToBackend(member, checked) {
 }
 
 // ============================================================================
-// ROLE MANAGEMENT (UBAH ROLE OLEH SUPER MASTER & LEADER)
+// EDIT NAMA PERANGKAT HP (SUPER MASTER & LEADER)
 // ============================================================================
-function openChangeRoleModal(targetId, targetName, currentRole, targetType = 'MEMBER') {
-  const executorRole = STATE.currentUser?.role;
-  if (!['SUPER MASTER', 'LEADER'].includes(executorRole)) {
-    showToast('Hanya Super Master dan Leader yang berhak mengubah role.', 'danger');
+function openEditHpModal(nameCell, currentName) {
+  document.getElementById('editHpCell').value = nameCell;
+  document.getElementById('editHpCellDisplay').value = nameCell;
+  document.getElementById('editHpNameInput').value = currentName;
+  openModal('editHpModal');
+}
+
+async function handleConfirmEditHp() {
+  const cell = document.getElementById('editHpCell').value;
+  const newName = document.getElementById('editHpNameInput').value.trim();
+  if (!newName) {
+    showToast('Nama perangkat tidak boleh kosong.', 'danger');
     return;
   }
 
-  STATE.activeModalTarget = { id: targetId, name: targetName, currentRole: currentRole, type: targetType };
+  showTopProgress();
+  try {
+    await api('editData', { cell: cell, value: newName });
+    closeModal('editHpModal');
+    showToast('✓ Nama perangkat berhasil diubah di Sheet DATA BANK', 'success');
+    await refreshDashboardData();
+  } catch (err) {
+    showToast('Gagal mengubah data: ' + err.message, 'danger');
+  } finally {
+    hideTopProgress();
+  }
+}
 
-  document.getElementById('modalTargetId').textContent = targetId;
-  document.getElementById('modalTargetName').textContent = targetName;
-  
+// ============================================================================
+// ROLE MANAGEMENT & USER MODAL
+// ============================================================================
+function openChangeRoleModal(email, name, currentRole) {
+  STATE.activeTarget = { email: email, name: name, currentRole: currentRole };
+  document.getElementById('modalTargetEmail').textContent = email;
+  document.getElementById('modalTargetName').textContent = name;
+
   const roleBadge = document.getElementById('modalCurrentRole');
   roleBadge.textContent = currentRole;
   roleBadge.className = `badge-role ${getRoleBadgeClass(currentRole)}`;
 
-  // Populate Allowed Roles depending on executor
-  const select = document.getElementById('selectNewRole');
-  select.innerHTML = '';
-
-  let allowedRoles = [];
-  if (executorRole === 'SUPER MASTER') {
-    allowedRoles = ['SUPER MASTER', 'LEADER', 'CS', 'KAPTEN', 'KASIR', 'VIP', 'REGULER'];
-  } else if (executorRole === 'LEADER') {
-    // Leader can assign user roles (CS, KAPTEN, KASIR, VIP, REGULER, LEADER)
-    allowedRoles = ['LEADER', 'CS', 'KAPTEN', 'KASIR', 'VIP', 'REGULER'];
-  }
-
-  allowedRoles.forEach(r => {
-    const opt = document.createElement('option');
-    opt.value = r;
-    opt.textContent = r;
-    if (r === currentRole) opt.selected = true;
-    select.appendChild(opt);
-  });
-
-  document.getElementById('roleChangeReason').value = '';
+  document.getElementById('selectNewRole').value = currentRole;
   openModal('changeRoleModal');
 }
 
-function handleConfirmChangeRole() {
-  if (!STATE.activeModalTarget) return;
-
+async function handleConfirmChangeRole() {
+  if (!STATE.activeTarget) return;
   const newRole = document.getElementById('selectNewRole').value;
-  const reason = document.getElementById('roleChangeReason').value.trim();
-  const target = STATE.activeModalTarget;
-  const executor = STATE.currentUser;
-  const formattedTime = formatTimestamp(new Date());
+  const target = STATE.activeTarget;
 
-  if (newRole === target.currentRole) {
-    showToast('Role tidak berubah.', 'info');
+  showTopProgress();
+  try {
+    await api('updateRole', { targetEmail: target.email, newRole: newRole });
     closeModal('changeRoleModal');
-    return;
-  }
-
-  // Update target in members or users list
-  if (target.type === 'MEMBER') {
-    const member = STATE.members.find(m => m.id === target.id);
-    if (member) member.role = newRole;
-  } else {
-    const user = STATE.users.find(u => u.id === target.id);
-    if (user) user.role = newRole;
-  }
-
-  // Record Standardized Activity Log:
-  // Format: LEADER - MEMBER123 - ROLE DIUBAH KE VIP - 19/08/2026 21:45
-  const logFormatText = `${executor.role} - ${target.name} - ROLE DIUBAH DARI ${target.currentRole} KE ${newRole} - ${formattedTime}`;
-  recordActivityLog(
-    'CHANGE_ROLE',
-    logFormatText,
-    `Perubahan role akses oleh ${executor.name} (${executor.role}). Alasan: ${reason || 'Tidak ada catatan'}`
-  );
-
-  saveToCache();
-  renderMemberTable();
-  renderUsersTable();
-  closeModal('changeRoleModal');
-
-  showToast(`✓ Role ${target.name} berhasil diubah menjadi ${newRole}`, 'success');
-
-  // Background Sync
-  if (CONFIG.API_URL) {
-    callAppsScriptAPI('updateRole', {
-      targetId: target.id,
-      newRole: newRole,
-      reason: reason,
-      updatedBy: executor.name
-    }).catch(e => console.warn(e));
+    showToast(`✓ Role ${target.name} berhasil diubah ke ${newRole}`, 'success');
+    loadUsersTable();
+  } catch (err) {
+    showToast('Gagal mengubah role: ' + err.message, 'danger');
+  } finally {
+    hideTopProgress();
   }
 }
 
-// ============================================================================
-// MEMBER CRUD (TAMBAH & EDIT)
-// ============================================================================
-function openAddMemberModal() {
-  document.getElementById('memberModalTitle').textContent = 'Tambah Member Baru';
-  document.getElementById('editMemberId').value = '';
-  document.getElementById('formMemberUsername').value = '';
-  document.getElementById('formMemberName').value = '';
-  document.getElementById('formMemberRole').value = 'REGULER';
-  document.getElementById('formMemberStatus').value = 'AKTIF';
-  openModal('memberModal');
-}
-
-function openEditMemberModal(memberId) {
-  const member = STATE.members.find(m => m.id === memberId);
-  if (!member) return;
-
-  document.getElementById('memberModalTitle').textContent = 'Edit Data Member';
-  document.getElementById('editMemberId').value = member.id;
-  document.getElementById('formMemberUsername').value = member.username || '';
-  document.getElementById('formMemberName').value = member.name || '';
-  document.getElementById('formMemberRole').value = member.role || 'REGULER';
-  document.getElementById('formMemberStatus').value = member.status || 'AKTIF';
-  openModal('memberModal');
-}
-
-function handleSaveMember(e) {
-  if (e) e.preventDefault();
-  const editId = document.getElementById('editMemberId').value;
-  const username = document.getElementById('formMemberUsername').value.trim();
-  const name = document.getElementById('formMemberName').value.trim();
-  const role = document.getElementById('formMemberRole').value;
-  const status = document.getElementById('formMemberStatus').value;
-  const executor = STATE.currentUser || { name: 'Admin', role: 'STAFF' };
-  const formattedTime = formatTimestamp(new Date());
-
-  if (!username || !name) {
-    showToast('Username dan Nama wajib diisi.', 'danger');
-    return;
-  }
-
-  if (editId) {
-    // Edit existing member
-    const member = STATE.members.find(m => m.id === editId);
-    if (member) {
-      const oldData = `${member.username} | ${member.name} | ${member.role} | ${member.status}`;
-      member.username = username;
-      member.name = name;
-      member.role = role;
-      member.status = status;
-
-      recordActivityLog(
-        'EDIT_DATA',
-        `${executor.role} - ${username} - DATA MEMBER DIEDIT - ${formattedTime}`,
-        `Data member ${name} diperbarui oleh ${executor.name}. (Sebelumnya: ${oldData})`
-      );
-      showToast(`✓ Data member ${name} berhasil diperbarui`, 'success');
-    }
-  } else {
-    // Create new member
-    const newId = 'MBR-' + (Date.now().toString().slice(-4));
-    const newMember = {
-      id: newId,
-      username: username,
-      name: name,
-      role: role,
-      status: status,
-      checked: false,
-      checkedAt: '-',
-      checkedBy: '-',
-      notes: 'Member baru ditambahkan'
-    };
-    STATE.members.unshift(newMember);
-
-    recordActivityLog(
-      'CREATE_DATA',
-      `${executor.role} - ${username} - MEMBER BARU DITAMBAHKAN - ${formattedTime}`,
-      `Member baru ${name} (${username}) dibuat dengan role ${role}`
-    );
-    showToast(`✓ Member baru ${name} berhasil ditambahkan`, 'success');
-  }
-
-  saveToCache();
-  renderMemberTable();
-  renderStats();
-  closeModal('memberModal');
-}
-
-function deleteMember(memberId) {
-  const member = STATE.members.find(m => m.id === memberId);
-  if (!member) return;
-
-  if (confirm(`Yakin ingin menghapus data member ${member.name} (${member.username || member.id})?`)) {
-    const executor = STATE.currentUser || { name: 'Admin', role: 'SUPER MASTER' };
-    const formattedTime = formatTimestamp(new Date());
-
-    STATE.members = STATE.members.filter(m => m.id !== memberId);
-
-    recordActivityLog(
-      'DELETE_DATA',
-      `${executor.role} - ${member.username || member.id} - MEMBER DIHAPUS - ${formattedTime}`,
-      `Data member ${member.name} dihapus oleh ${executor.name}`
-    );
-
-    saveToCache();
-    renderMemberTable();
-    renderStats();
-    showToast(`Data member ${member.name} telah dihapus`, 'info');
-  }
-}
-
-// Export Member CSV
-function exportMembersToCSV() {
-  const headers = ['NO', 'ID_MEMBER', 'USERNAME', 'NAMA', 'ROLE', 'STATUS', 'STATUS_PENGECEKAN', 'WAKTU_DICEK', 'DICEK_OLEH'];
-  const rows = STATE.members.map((m, i) => [
-    i + 1,
-    `"${m.id}"`,
-    `"${m.username || ''}"`,
-    `"${m.name || ''}"`,
-    `"${m.role || ''}"`,
-    `"${m.status || ''}"`,
-    m.checked ? 'SUDAH DI CEK' : 'BELUM DI CEK',
-    `"${m.checkedAt || '-'}"`,
-    `"${m.checkedBy || '-'}"`
-  ]);
-
-  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement('a');
-  link.setAttribute('href', encodedUri);
-  link.setAttribute('download', `DATA_MEMBER_${new Date().toISOString().slice(0, 10)}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  showToast('✓ File CSV Data Member berhasil di-download', 'success');
-}
-
-// ============================================================================
-// AUDIT TRAIL & LOG AKTIVITAS ENGINE
-// ============================================================================
-function recordActivityLog(action, formatText, detail) {
-  const user = STATE.currentUser || { name: 'System', role: 'SYSTEM', username: 'system' };
-  const timestamp = formatTimestamp(new Date());
-  const logId = 'LOG-' + Date.now().toString().slice(-6);
-
-  const logEntry = {
-    id: logId,
-    timestamp: timestamp,
-    user: user.name || user.username,
-    role: user.role,
-    action: action,
-    formatText: formatText,
-    detail: detail
-  };
-
-  // Prepend to logs
-  STATE.logs.unshift(logEntry);
-
-  // Keep max 500 entries in cache to avoid memory bloat
-  if (STATE.logs.length > 500) STATE.logs.pop();
-
-  saveToCache();
-}
-
-function renderLogsTable() {
-  const tbody = document.getElementById('logsTableBody');
+async function loadUsersTable() {
+  const tbody = document.getElementById('usersTableBody');
   if (!tbody) return;
 
-  const query = STATE.logSearchQuery.toLowerCase();
-  const actionFilter = STATE.logActionFilter;
-
-  const filteredLogs = STATE.logs.filter(log => {
-    if (actionFilter !== 'ALL' && log.action !== actionFilter) return false;
-    if (query) {
-      const matchText = `${log.timestamp} ${log.user} ${log.role} ${log.formatText} ${log.detail}`.toLowerCase();
-      if (!matchText.includes(query)) return false;
-    }
-    return true;
-  });
-
-  const countSummary = document.getElementById('logCountSummary');
-  if (countSummary) {
-    countSummary.textContent = `Menampilkan ${filteredLogs.length} dari ${STATE.logs.length} catatan log aktivitas`;
-  }
-
-  if (filteredLogs.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-dim);">Tidak ada catatan log aktivitas yang sesuai filter</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = filteredLogs.map((log, idx) => `
-    <tr>
-      <td style="color: var(--text-dim);">${idx + 1}</td>
-      <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">
-        <i class="fa-regular fa-clock"></i> ${esc(log.timestamp)}
-      </td>
-      <td>
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span class="badge-role ${getRoleBadgeClass(log.role)}">${esc(log.role)}</span>
-          <span style="font-size: 11px; font-weight: 600;">${esc(log.user)}</span>
-        </div>
-      </td>
-      <td>
-        <span class="badge-pill bg-blue">${esc(log.action)}</span>
-      </td>
-      <td>
-        <span class="log-badge-activity">${esc(log.formatText)}</span>
-      </td>
-      <td style="font-size: 11px; color: var(--text-muted);">${esc(log.detail)}</td>
-    </tr>
-  `).join('');
-}
-
-function getActivityIcon(action) {
-  switch (action) {
-    case 'CHECK_MEMBER': return 'fa-solid fa-circle-check text-success';
-    case 'UNCHECK_MEMBER': return 'fa-solid fa-clock-rotate-left text-warning';
-    case 'CHANGE_ROLE': return 'fa-solid fa-user-shield text-purple';
-    case 'LOGIN': return 'fa-solid fa-arrow-right-to-bracket text-info';
-    case 'LOGOUT': return 'fa-solid fa-arrow-right-from-bracket text-danger';
-    case 'EDIT_DATA': return 'fa-solid fa-pen-to-square text-warning';
-    case 'CREATE_DATA': return 'fa-solid fa-plus text-success';
-    default: return 'fa-solid fa-circle-info text-info';
+  try {
+    const users = await api('getUsers');
+    STATE.users = users || [];
+    renderUsersTable();
+  } catch (err) {
+    renderUsersTable();
   }
 }
 
-function getActivityIconBg(action) {
-  switch (action) {
-    case 'CHECK_MEMBER': return 'bg-success-subtle';
-    case 'UNCHECK_MEMBER': return 'bg-danger-subtle';
-    case 'CHANGE_ROLE': return 'bg-purple-subtle';
-    default: return 'bg-blue-subtle';
-  }
-}
-
-// ============================================================================
-// DATA KASIR & TRANSAKSI (KHUSUS KASIR, LEADER, SUPER MASTER)
-// ============================================================================
-function renderTransactionsTable() {
-  const tbody = document.getElementById('transactionTableBody');
-  if (!tbody) return;
-
-  const query = STATE.transactionSearchQuery.toLowerCase();
-  const typeFilter = STATE.transactionTypeFilter;
-  const bankFilter = STATE.transactionBankFilter;
-
-  const filtered = STATE.transactions.filter(t => {
-    if (typeFilter !== 'ALL' && t.type !== typeFilter) return false;
-    if (bankFilter !== 'ALL' && !t.bank.includes(bankFilter)) return false;
-    if (query) {
-      const match = `${t.id} ${t.bank} ${t.memberName} ${t.cashier} ${t.amount}`.toLowerCase();
-      if (!match.includes(query)) return false;
-    }
-    return true;
-  });
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 30px; color: var(--text-dim);">Belum ada data transaksi kasir</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = filtered.map((t, idx) => `
-    <tr>
-      <td style="color: var(--text-dim);">${idx + 1}</td>
-      <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${esc(t.time)}</td>
-      <td><span class="member-id-cell">${esc(t.id)}</span></td>
-      <td><span class="badge-pill ${t.type === 'WITHDRAW' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'}">${esc(t.type)}</span></td>
-      <td><b>${esc(t.bank)}</b></td>
-      <td>${esc(t.memberName)}</td>
-      <td style="font-weight: 700; color: #fff;">Rp ${esc(t.amount)}</td>
-      <td><span class="status-pill aktif"><i class="fa-solid fa-circle" style="font-size: 5px;"></i> ${esc(t.status)}</span></td>
-      <td><span class="text-muted"><i class="fa-solid fa-user-tie"></i> ${esc(t.cashier)}</span></td>
-      <td style="text-align: right;">
-        <button class="btn-table-action" onclick="showToast('Detail transaksi ${t.id} siap dicetak', 'info')"><i class="fa-solid fa-print"></i></button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// ============================================================================
-// USER MANAGEMENT TABLE (SUPER MASTER & LEADER)
-// ============================================================================
 function renderUsersTable() {
   const tbody = document.getElementById('usersTableBody');
   if (!tbody) return;
 
-  const canEditUsers = ['SUPER MASTER', 'LEADER'].includes(STATE.currentUser?.role);
-
-  tbody.innerHTML = STATE.users.map((u, idx) => {
-    return `
-      <tr>
-        <td style="color: var(--text-dim);">${idx + 1}</td>
-        <td><span class="member-id-cell">${esc(u.username)}</span></td>
-        <td><b>${esc(u.name)}</b></td>
-        <td><span class="badge-role ${getRoleBadgeClass(u.role)}">${esc(u.role)}</span></td>
-        <td><span class="status-pill ${u.status.toLowerCase()}"><i class="fa-solid fa-circle" style="font-size: 5px;"></i> ${esc(u.status)}</span></td>
-        <td style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">${esc(u.lastLogin || '-')}</td>
-        <td style="text-align: right;">
-          ${canEditUsers ? `
-            <button type="button" class="btn-secondary-sm" onclick="openChangeRoleModal('${u.id}', '${esc(u.name)}', '${u.role}', 'USER')">
-              <i class="fa-solid fa-user-shield"></i> Atur Role
-            </button>
-          ` : '<span class="text-muted">-</span>'}
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// ============================================================================
-// ONLINE PRESENCE & CLOCK
-// ============================================================================
-function startClock() {
-  const clockEl = document.getElementById('realtimeClock');
-  if (!clockEl) return;
-
-  function update() {
-    const now = new Date();
-    clockEl.textContent = now.toLocaleTimeString('id-ID', { hour12: false });
-  }
-  update();
-  setInterval(update, 1000);
-}
-
-function updateOnlinePresence() {
-  const listEl = document.getElementById('onlineUsersList');
-  if (!listEl) return;
-
-  // Active users demo presence
-  const currentRole = STATE.currentUser?.role || 'PETUGAS';
-  const currentName = STATE.currentUser?.name || 'User';
-
-  const simulatedOnline = [
-    { name: currentName, role: currentRole, isSelf: true },
-    { name: 'Siti (CS)', role: 'CS' },
-    { name: 'Bambang (Leader)', role: 'LEADER' }
+  const list = STATE.users.length ? STATE.users : [
+    { email: 'rizkykucuk19@gmail.com', name: 'Owner Rizky', role: 'SUPER MASTER', status: 'ACTIVE' },
+    { email: 'ediw4717@gmail.com', name: 'EDI WAHYUDI', role: 'SUPER MASTER', status: 'ACTIVE' },
+    { email: 'leader@office.local', name: 'Leader Shift', role: 'LEADER', status: 'ACTIVE' },
+    { email: 'cs@office.local', name: 'CS Staff', role: 'CS', status: 'ACTIVE' }
   ];
 
-  listEl.innerHTML = simulatedOnline.map(u => `
-    <span class="user-chip" title="${esc(u.role)}">
-      ${esc(u.name)} ${u.isSelf ? '(Anda)' : ''}
-    </span>
+  const canEdit = ['SUPER MASTER', 'LEADER'].includes(STATE.currentUser?.role);
+
+  tbody.innerHTML = list.map((u, idx) => `
+    <tr>
+      <td>${idx + 1}</td>
+      <td><span class="member-id-cell">${esc(u.email)}</span></td>
+      <td><b>${esc(u.name)}</b></td>
+      <td><span class="badge-role ${getRoleBadgeClass(u.role)}">${esc(u.role)}</span></td>
+      <td><span class="status-pill aktif">${esc(u.status)}</span></td>
+      <td style="text-align: right;">
+        ${canEdit ? `
+          <button type="button" class="btn-secondary-sm" onclick="openChangeRoleModal('${esc(u.email)}', '${esc(u.name)}', '${esc(u.role)}')">
+            <i class="fa-solid fa-user-shield"></i> Atur Role
+          </button>
+        ` : '-'}
+      </td>
+    </tr>
   `).join('');
 }
 
 // ============================================================================
-// BRANDING / LOGO CUSTOMIZATION ENGINE
+// AUDIT LOGS / RIWAYAT
 // ============================================================================
-function loadCustomLogo() {
-  const customLogo = localStorage.getItem('custom_dashboard_logo');
-  if (customLogo) {
-    applyLogoToDom(customLogo);
+async function loadAuditHistory() {
+  showTopProgress();
+  try {
+    const logs = await api('getHistory');
+    STATE.logs = logs || [];
+    renderLogsTable();
+    showToast('✓ Log aktivitas berhasil dimuat dari Audit_Log', 'success');
+  } catch (err) {
+    showToast('Gagal memuat log: ' + err.message, 'danger');
+  } finally {
+    hideTopProgress();
   }
 }
 
-function handleLogoFileUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+function renderLogsTable(query = '') {
+  const tbody = document.getElementById('logsTableBody');
+  if (!tbody) return;
 
-  if (file.size > 2 * 1024 * 1024) {
-    showToast('Ukuran file logo maksimal 2MB', 'danger');
-    return;
+  const list = (STATE.logs && STATE.logs.length) ? STATE.logs : [
+    { timestamp: '19/08/2026 21:45:12', email: 'leader@office.local', action: 'CHECK', shift: 'SHIFT 1', cell: 'E4', item: 'WD BCA / RATNASARI', newValue: 'LEADER - WD BCA / RATNASARI - SUDAH DI CEK - 19/08/2026 21:45' }
+  ];
+
+  const filtered = list.filter(l => {
+    if (!query) return true;
+    const match = `${l.timestamp} ${l.email} ${l.action} ${l.cell} ${l.item} ${l.newValue}`.toLowerCase();
+    return match.includes(query.toLowerCase());
+  });
+
+  tbody.innerHTML = filtered.map((l, idx) => `
+    <tr>
+      <td>${idx + 1}</td>
+      <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${esc(l.timestamp)}</td>
+      <td><span class="checker-name">${esc(l.email)}</span></td>
+      <td><span class="badge-pill bg-blue">${esc(l.action)}</span></td>
+      <td>${esc(l.shift || '-')}</td>
+      <td><span class="member-id-cell">${esc(l.cell || '-')}</span></td>
+      <td><b>${esc(l.item || '-')}</b></td>
+      <td><span class="log-badge-activity">${esc(l.newValue || l.action)}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================================
+// STATS & OVERVIEW
+// ============================================================================
+function renderStats() {
+  const total = STATE.allData.length;
+  const checked = STATE.allData.filter(x => x.checked).length;
+  const unchecked = total - checked;
+
+  document.getElementById('statTotalHp').textContent = total;
+  document.getElementById('statUncheckedHp').textContent = unchecked;
+  document.getElementById('statCheckedHp').textContent = checked;
+  document.getElementById('statTotalToken').textContent = STATE.tokenData.length;
+
+  const navBadge = document.getElementById('navUncheckedCount');
+  if (navBadge) {
+    navBadge.textContent = unchecked;
+    navBadge.classList.toggle('hidden', unchecked === 0);
   }
 
+  const progress = document.getElementById('statCheckProgress');
+  if (progress) {
+    const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+    progress.innerHTML = `<i class="fa-solid fa-chart-line"></i> ${pct}% Terverifikasi (${checked}/${total})`;
+  }
+
+  renderQuickOverview();
+}
+
+function renderQuickOverview() {
+  const quickBody = document.getElementById('quickUncheckedHpBody');
+  if (!quickBody) return;
+
+  const unchecked = STATE.allData.filter(x => !x.checked).slice(0, 5);
+  if (unchecked.length === 0) {
+    quickBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--success); padding: 20px;"><i class="fa-solid fa-circle-check"></i> Seluruh perangkat HP telah diverifikasi!</td></tr>`;
+  } else {
+    quickBody.innerHTML = unchecked.map(x => `
+      <tr>
+        <td><span class="badge-pill bg-blue">${esc(x.category)}</span></td>
+        <td><b>${esc(x.bank)}</b></td>
+        <td>${esc(x.name)}</td>
+        <td><span class="btn-check-status status-unchecked" style="cursor: default;"><i class="fa-solid fa-clock"></i> BELUM DI CEK</span></td>
+        <td>
+          <button class="btn-secondary-sm" onclick="updateHpCheck('${x.checkCell}', true, '${esc(x.name)}', '${x.category}')">
+            <i class="fa-solid fa-check"></i> Cek
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+}
+
+// ============================================================================
+// ONLINE HEARTBEAT & PRESENCE
+// ============================================================================
+function startHeartbeat() {
+  stopHeartbeat();
+  heartbeatTimer = setInterval(async () => {
+    if (!STATE.sessionToken) return;
+    try {
+      const res = await api('heartbeat', { page: STATE.activePage });
+      if (res && res.online) {
+        STATE.onlineUsers = res.online;
+        renderOnlineUsers();
+      }
+    } catch (e) {}
+  }, CONFIG.HEARTBEAT_INTERVAL || 15000);
+}
+
+function stopHeartbeat() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+}
+
+function renderOnlineUsers() {
+  const el = document.getElementById('onlineUsersList');
+  if (!el) return;
+  const list = STATE.onlineUsers.length ? STATE.onlineUsers : [{ name: STATE.currentUser?.name || 'Anda' }];
+  el.innerHTML = list.map(u => `<span class="user-chip">${esc(u.name)}</span>`).join('');
+}
+
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+function navigateToPage(pageId) {
+  STATE.activePage = pageId;
+
+  document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+    link.classList.toggle('active', link.dataset.page === pageId);
+  });
+
+  document.querySelectorAll('.app-page').forEach(page => page.classList.add('hidden'));
+
+  const titleEl = document.getElementById('currentPageTitle');
+  const subEl = document.getElementById('currentPageSubtitle');
+
+  switch (pageId) {
+    case 'monitoring':
+      document.getElementById('pageMonitoring').classList.remove('hidden');
+      titleEl.textContent = 'Monitoring Kelengkapan HP Office';
+      subEl.textContent = 'Verifikasi kelengkapan HP Withdraw, Depo, Bank Kas & Token BCA';
+      filterAndRenderHp();
+      break;
+
+    case 'overview':
+      document.getElementById('pageOverview').classList.remove('hidden');
+      titleEl.textContent = 'Ringkasan & Statistik';
+      subEl.textContent = 'Pantau rasio pengecekan fisik perangkat per shift';
+      renderStats();
+      break;
+
+    case 'users':
+      document.getElementById('pageUsers').classList.remove('hidden');
+      titleEl.textContent = 'Kelola User & Role Akses';
+      subEl.textContent = 'Daftar user dari Sheet Users (Super Master, Leader, CS, Kapten, Kasir)';
+      loadUsersTable();
+      break;
+
+    case 'logs':
+      document.getElementById('pageLogs').classList.remove('hidden');
+      titleEl.textContent = 'Log Aktivitas Pengecekan';
+      subEl.textContent = 'Audit trail realtime yang tersimpan di Sheet Audit_Log';
+      loadAuditHistory();
+      break;
+
+    case 'settings':
+      document.getElementById('pageSettings').classList.remove('hidden');
+      titleEl.textContent = 'Pengaturan Sistem & Endpoint';
+      subEl.textContent = 'Konfigurasi Web App URL dan logo dashboard';
+      break;
+  }
+}
+
+// ============================================================================
+// BRANDING & LOGO
+// ============================================================================
+function loadCustomLogo() {
+  const logo = localStorage.getItem('custom_dashboard_logo');
+  if (logo) applyLogoToDom(logo);
+}
+
+function handleLogoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
   const reader = new FileReader();
-  reader.onload = function (event) {
+  reader.onload = (event) => {
     const dataUrl = event.target.result;
     localStorage.setItem('custom_dashboard_logo', dataUrl);
     applyLogoToDom(dataUrl);
@@ -1505,176 +1015,114 @@ function handleLogoFileUpload(e) {
   reader.readAsDataURL(file);
 }
 
-function applyLogoUrl() {
-  const url = (document.getElementById('logoUrlInput')?.value || '').trim();
-  if (!url) {
-    showToast('Silakan masukkan URL logo yang valid', 'warning');
-    return;
-  }
-  localStorage.setItem('custom_dashboard_logo', url);
-  applyLogoToDom(url);
-  showToast('✓ URL Logo berhasil diterapkan!', 'success');
-}
-
 function applyLogoToDom(src) {
   const loginImg = document.getElementById('loginLogoImg');
-  const loginFallback = document.getElementById('loginLogoFallback');
   const sidebarImg = document.getElementById('sidebarLogoImg');
-  const sidebarFallback = document.getElementById('sidebarLogoFallback');
-  const previewImg = document.getElementById('settingsLogoPreview');
-  const previewFallback = document.getElementById('previewFallback');
-
+  const preview = document.getElementById('settingsLogoPreview');
   if (loginImg) { loginImg.src = src; loginImg.style.display = 'block'; }
-  if (loginFallback) loginFallback.style.display = 'none';
-
   if (sidebarImg) { sidebarImg.src = src; sidebarImg.style.display = 'block'; }
-  if (sidebarFallback) sidebarFallback.style.display = 'none';
-
-  if (previewImg) { previewImg.src = src; previewImg.classList.remove('hidden'); }
-  if (previewFallback) previewFallback.classList.add('hidden');
+  if (preview) preview.src = src;
 }
 
-// ============================================================================
-// SETTINGS & LOCAL STORAGE HELPERS
-// ============================================================================
 function saveApiUrlSetting() {
   const val = (document.getElementById('settingApiUrl')?.value || '').trim();
   if (val) {
     CONFIG.API_URL = val;
     localStorage.setItem('custom_api_url', val);
-    showToast('✓ Konfigurasi Web App URL berhasil disimpan', 'success');
-  } else {
-    showToast('URL tidak boleh kosong', 'warning');
+    showToast('✓ URL API berhasil disimpan!', 'success');
+    refreshDashboardData();
   }
 }
 
-function clearLocalCache() {
-  if (confirm('Bersihkan seluruh cache lokal dan reset ke data awal?')) {
-    localStorage.removeItem(CONFIG.CACHE_KEY);
-    loadStoredData();
-    renderMemberTable();
-    renderStats();
-    renderTransactionsTable();
-    renderLogsTable();
-    showToast('Cache lokal berhasil dibersihkan', 'info');
-  }
-}
-
-function testApiConnection() {
+function testConnection() {
   showTopProgress();
-  setTimeout(() => {
-    hideTopProgress();
-    showToast('✓ Koneksi API Backend Apps Script siap & aktif!', 'success');
-  }, 600);
+  api('getDashboard').then(() => {
+    showToast('✓ Koneksi ke Google Sheets (DATA BANK) berhasil!', 'success');
+  }).catch(err => {
+    showToast('Gagal terhubung: ' + err.message, 'danger');
+  }).finally(hideTopProgress);
 }
 
-// ============================================================================
-// APPS SCRIPT API CALL HELPER (JSONP TRANSPORT)
-// ============================================================================
-function callAppsScriptAPI(action, params = {}) {
-  return new Promise((resolve, reject) => {
-    if (!CONFIG.API_URL) return resolve({ success: true, localOnly: true });
+// Export CSV
+function exportHpToCSV() {
+  const headers = ['NO', 'KATEGORI', 'BANK', 'NAMA_PERANGKAT', 'CELL', 'STATUS_KELENGKAPAN', 'WAKTU_DICEK', 'DICEK_OLEH'];
+  const dataset = getActiveCategoryData();
+  const rows = dataset.map((item, idx) => [
+    idx + 1,
+    `"${item.category}"`,
+    `"${item.bank}"`,
+    `"${item.name}"`,
+    `"${item.checkCell}"`,
+    item.checked ? 'SUDAH DI CEK' : 'BELUM DI CEK',
+    `"${item.checkedAt || '-'}"`,
+    `"${item.checkedBy || '-'}"`
+  ]);
 
-    const callbackName = '__memberApi_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-    const script = document.createElement('script');
-    const urlParams = new URLSearchParams();
-
-    urlParams.set('action', action);
-    urlParams.set('token', STATE.sessionToken || '');
-    urlParams.set('callback', callbackName);
-    urlParams.set('_', Date.now().toString());
-
-    Object.entries(params).forEach(([k, v]) => urlParams.set(k, String(v ?? '')));
-
-    let isDone = false;
-    const cleanup = () => {
-      isDone = true;
-      delete window[callbackName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    };
-
-    window[callbackName] = (response) => {
-      if (isDone) return;
-      cleanup();
-      if (response && response.success) resolve(response.data);
-      else reject(new Error(response?.message || 'API Error'));
-    };
-
-    script.src = CONFIG.API_URL + '?' + urlParams.toString();
-    script.onerror = () => {
-      if (isDone) return;
-      cleanup();
-      // Graceful fallback to local cache
-      resolve({ success: true, fallback: true });
-    };
-
-    document.head.appendChild(script);
-
-    // Timeout safety
-    setTimeout(() => {
-      if (!isDone) {
-        cleanup();
-        resolve({ success: true, timeoutFallback: true });
-      }
-    }, 10000);
-  });
+  const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const link = document.createElement('a');
+  link.setAttribute('href', encodeURI(csv));
+  link.setAttribute('download', `MONITORING_HP_${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✓ File CSV kelengkapan HP berhasil didownload', 'success');
 }
 
-// ============================================================================
-// UI HELPERS (MODALS, TOAST, DEBOUNCE, CLIPBOARD)
-// ============================================================================
-function openModal(id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.classList.remove('hidden');
+// Fallback seed data if offline
+function loadFallbackData() {
+  const wdNames = [
+    'WD BCA / RATNASARI', 'WD BCA / FAIZAL AULIADI', 'WD BCA / RENDHA YUSMAWAN SAPUTRA', 'WD BCA / MUHAMAD RAFI AL GHIFARI',
+    'WD BCA / SAFIRA OKTAVIANA', 'WD BCA / DEDE BUDIYANTO', 'WD BCA / MARIANUS KOLI', 'WD BCA / SRI WAHYUNI',
+    'WD BCA / A. HAETAMI', 'WD BCA / M. MUROK SYAFIUDIN', 'WD BCA / RUDI ARTANA', 'WD BRI / KEVIN MAULANA LUBIS',
+    'WD BRI / NORMAYANTI', 'WD BRI / HARUN', 'WD BNI / Umi Salamah', 'WD DANAMON / Ima Fatimah Al Adawiyah', 'WD MANDIRI / HERNAWATI'
+  ];
+
+  STATE.withdrawData = wdNames.map((n, i) => ({
+    id: 'E' + (i + 4), number: i + 1, category: 'WITHDRAW', bank: n.includes('BCA') ? 'BCA' : n.includes('BRI') ? 'BRI' : n.includes('BNI') ? 'BNI' : 'MANDIRI',
+    name: n, checked: false, nameCell: 'D' + (i + 4), checkCell: 'E' + (i + 4), checkedBy: '-', checkedAt: '-'
+  }));
+
+  const depoNames = ['BCA G1 / AGUS MAULANA', 'BCA G9 / Maita Ayu Dwi Anggita', 'BCA G10 / OOM', 'BCA G11 / Han Setiawan', 'BRI G11 / Irpan Gunawan', 'BNI G4 / Herman'];
+  STATE.depoData = depoNames.map((n, i) => ({
+    id: 'I' + (i + 4), number: i + 1, category: 'DEPO', bank: n.includes('BCA') ? 'BCA' : n.includes('BRI') ? 'BRI' : 'BNI',
+    name: n, checked: false, nameCell: 'H' + (i + 4), checkCell: 'I' + (i + 4), checkedBy: '-', checkedAt: '-'
+  }));
+
+  const kasNames = ['BANK KAS KECIL BCA / TUMINI MANURUNG', 'BANK KAS BESAR BCA / Teoh Li Tjien', 'KAS BESAR BCA / SITI ROHMAWATI', 'BANK KAS BESAR DANAMON / Priskila'];
+  STATE.bankKasData = kasNames.map((n, i) => ({
+    id: 'N' + (i + 4), number: i + 1, category: 'BANK KAS', bank: n.includes('BCA') ? 'BCA' : 'DANAMON',
+    name: n, checked: false, nameCell: 'M' + (i + 4), checkCell: 'N' + (i + 4), checkedBy: '-', checkedAt: '-'
+  }));
+
+  const tokenNames = ['WD BCA / RUDI ARTANA ( TOKEN )', 'WD BCA / RATNASARI', 'DEPO IM-TOKEN RIZKA', 'DEPO IM-TOKEN HENRY'];
+  STATE.tokenData = tokenNames.map((n, i) => ({
+    id: 'R' + (i + 4), number: i + 1, category: 'TOKEN BCA', bank: 'BCA',
+    name: n, checked: false, nameCell: 'Q' + (i + 4), checkCell: 'R' + (i + 4), checkedBy: '-', checkedAt: '-'
+  }));
+
+  STATE.allData = [].concat(STATE.withdrawData, STATE.depoData, STATE.bankKasData, STATE.tokenData);
 }
 
-function closeModal(id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.classList.add('hidden');
-}
+// Helpers
+function openModal(id) { document.getElementById(id)?.classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id)?.classList.add('hidden'); }
 
-function showToast(message, type = 'info') {
+function showToast(msg, type = 'info') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
-
   const toast = document.createElement('div');
   toast.className = `toast-message toast-${type}`;
-
-  let icon = 'fa-solid fa-circle-info';
-  if (type === 'success') icon = 'fa-solid fa-circle-check';
-  if (type === 'danger') icon = 'fa-solid fa-circle-exclamation';
-
-  toast.innerHTML = `<i class="${icon}"></i> <span>${esc(message)}</span>`;
+  toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> <span>${esc(msg)}</span>`;
   container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(50px)';
-    toast.style.transition = 'all 0.3s ease';
-    setTimeout(() => {
-      if (toast.parentNode) toast.parentNode.removeChild(toast);
-    }, 300);
-  }, 3500);
+  setTimeout(() => toast.remove(), 3500);
 }
 
-function showTopProgress() {
-  const el = document.getElementById('topProgressBar');
-  if (el) el.classList.remove('hidden');
-}
+function showTopProgress() { document.getElementById('topProgressBar')?.classList.remove('hidden'); }
+function hideTopProgress() { document.getElementById('topProgressBar')?.classList.add('hidden'); }
 
-function hideTopProgress() {
-  const el = document.getElementById('topProgressBar');
-  if (el) el.classList.add('hidden');
-}
-
-function copyToClipboard(text) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      showToast(`ID "${text}" disalin ke clipboard`, 'info');
-    });
-  } else {
-    showToast(`ID "${text}"`, 'info');
-  }
+function startClock() {
+  const el = document.getElementById('realtimeClock');
+  if (el) setInterval(() => { el.textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }, 1000);
 }
 
 function debounce(func, wait) {
@@ -1685,23 +1133,12 @@ function debounce(func, wait) {
   };
 }
 
-function formatTimestamp(d) {
-  if (!d) return '-';
-  const pad = (n) => String(n).padStart(2, '0');
+function formatDateTime(d) {
+  const pad = n => String(n).padStart(2, '0');
   const date = new Date(d);
-  const day = pad(date.getDate());
-  const month = pad(date.getMonth() + 1);
-  const year = date.getFullYear();
-  const hour = pad(date.getHours());
-  const min = pad(date.getMinutes());
-  return `${day}/${month}/${year} ${hour}:${min}`;
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function esc(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

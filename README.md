@@ -1,116 +1,56 @@
-# MEMBER MONITOR PRO — Dashboard Monitoring & Pengecekan Member
+# OFFICE DATA CENTER — Dashboard Monitoring Kelengkapan HP & Perangkat
 
-Dashboard monitoring member modern, cepat, simpel, dan responsif dengan sistem 5 Level Akses (Role-Based Access Control) dan Audit Trail Log Aktivitas Real-Time.
-
----
-
-## 🌟 Fitur Utama
-
-### 1. 5 Level Akses Role Pengguna
-Setiap role memiliki hak akses dan batasan tampilan yang disesuaikan secara otomatis:
-- 👑 **SUPER MASTER**:
-  - Akses penuh (Full Access) ke seluruh data member, transaksi, kasir, log aktivitas, dan pengaturan sistem.
-  - Bisa mengatur dan mengubah role semua level user dan member secara instan.
-- 🎖️ **LEADER**:
-  - Melihat semua data member dan transaksi.
-  - Bisa mengatur role user dan member langsung dari dashboard.
-  - Bisa memantau dan memeriksa seluruh Log Aktivitas user.
-- 🎧 **CS (Customer Service)**:
-  - Fokus operasional pada data member dan proses pengecekan member.
-- 🧭 **KAPTEN**:
-  - Fokus pada monitoring operasional dan verifikasi pengecekan member.
-- 💳 **KASIR**:
-  - Khusus menangani mutasi transaksi deposit, withdraw, dan pembukuan kasir.
+Dashboard monitoring modern, cepat, dan terhubung langsung ke Google Sheets `DATA BANK` untuk pengecekan fisik kelengkapan HP Office (HP Withdraw, HP Depo, HP Bank Kas, dan Token BCA Office).
 
 ---
 
-### 2. Halaman Khusus Data Member
-Menampilkan informasi lengkap:
-- **Username / ID Member** (dilengkapi tombol quick-copy)
-- **Nama Lengkap Member**
-- **Status Akun** (Aktif, Non-Aktif, Suspended)
-- **Role / Level Member** (VIP, Reguler, dll.)
-- **Status Pengecekan** (`BELUM DI CEK` / `SUDAH DI CEK`)
-- **Waktu Terakhir Dicek** (contoh: `19/08/2026 21:45`)
-- **Siapa yang Melakukan Pengecekan** (contoh: `LEADER (Bambang)`)
-- **Fitur Ubah Role**: Super Master dan Leader dapat mengubah role member/user langsung melalui tombol aksi cepat / modal.
+## 🌟 Fitur Utama & Kategori Perangkat
+
+### 1. Pengecekan Kelengkapan HP (Status ADA / SUDAH DI CEK vs BELUM DI CEK)
+- **Terhubung Langsung ke Sheet `DATA BANK`**:
+  - 📱 **HP WITHDRAW** (77 Perangkat di Kolom D & Cell E4:E80)
+  - 📱 **HP DEPO** (27 Perangkat di Kolom H & Cell I4:I35)
+  - 📱 **HP BANK KAS** (21 Perangkat di Kolom M & Cell N4:N30)
+  - 🔑 **TOKEN BCA OFFICE** (12 Token di Kolom Q, R, U, V)
+- **Tanpa Checkbox & Tanpa Reload**:
+  - Tombol interaktif `BELUM DI CEK` (Warna Amber) diklik langsung berubah menjadi `SUDAH DI CEK` (Warna Hijau Emerald) seketika (0ms).
+  - Kolom checkbox di Google Sheet otomatis terisi `TRUE` / `FALSE`.
+  - Otomatis mencatat nama & role staf yang mengecek serta waktu pengecekan.
 
 ---
 
-### 3. Sistem Pengecekan Cepat (Zero Lag & No Checkbox)
-- **Tanpa Checkbox**: Menggunakan tombol interaktif dengan teks jelas:
-  - 🟡 **`BELUM DI CEK`** (Badge tombol peringatan kuning/amber).
-  - 🟢 **`SUDAH DI CEK`** (Badge tombol sukses hijau emerald + centang).
-- **Update Instan Tanpa Reload**: Saat tombol ditekan, status berubah seketika (*Optimistic UI Update* dalam 0ms) tanpa me-refresh seluruh halaman dashboard.
-- **Auto Log**: Setiap kali tombol pengecekan diklik, data langsung otomatis dicatat ke **LOG AKTIVITAS** dengan format standar:
-  ```text
-  LEADER - MEMBER123 - SUDAH DI CEK - 19/08/2026 21:45
-  ```
+### 2. Format Log Standar (Tercatat ke Sheet `Audit_Log`)
+Setiap kali status HP diubah, langsung tercatat otomatis:
+```text
+LEADER - WD BCA / RATNASARI - SUDAH DI CEK - 19/08/2026 22:26
+```
 
 ---
 
-### 4. Performa Tinggi & Navigasi Cepat
-- **Search Real-Time**: Pencarian instan per huruf tanpa reload.
-- **Filter Cepat**: Filter berdasarkan status pengecekan (Semua / Belum Di Cek / Sudah Di Cek), role, dan status akun.
-- **Pagination**: Pilihan tampilan 10, 25, 50, hingga 100 baris per halaman.
-- **In-Memory & Cache Engine**: Memastikan rendering data tetap halus meskipun data berjumlah ribuan.
+### 3. 5 Level Akses (Sheet `Users`)
+- 👑 **SUPER MASTER**: Full Access semua data, atur role semua staf, mulai shift baru / reset status HP.
+- 🎖️ **LEADER**: Full View semua data, atur role staf, memantau log aktivitas.
+- 🎧 **CS**: Fokus pengecekan & monitoring kelengkapan HP.
+- 🧭 **KAPTEN**: Fokus monitoring & pengecekan fisik perangkat.
+- 💳 **KASIR**: Fokus mutasi kas & perangkat kasir.
 
 ---
 
-### 5. Log Aktivitas Lengkap
-Mencatat seluruh riwayat penting sistem:
-- Sesi **Login** dan **Logout**
-- **Pengecekan Member** (Waktu, Target Member, Petugas)
-- **Perubahan Role** (Siapa yang mengubah, Role lama ke Role baru, Alasan)
-- **Edit & Penambahan Data**
+### 4. Kontrol Shift Operasional (`Shift_Control`)
+- Super Master dan Leader dapat menekan tombol **`+ MULAI SHIFT BARU`** saat pergantian shift.
+- Sistem otomatis me-reset seluruh status pengecekan HP untuk shift berikutnya dan mencatat riwayat ke log.
 
 ---
 
-### 6. Desain Modern, Responsif, & Kustomisasi Logo
-- Tampilan Dark-Theme Fintech yang rapi, profesional, dan nyaman di mata.
-- **Responsive Penuh**: Optimal di Desktop, Laptop, Tablet, dan Smartphone (HP).
-- **Kustomisasi Logo**: Mendukung upload file logo langsung dari dashboard atau input URL logo untuk dipasang pada halaman login dan sidebar.
+## 🚀 Panduan Setup ke Google Sheets Anda
 
----
-
-## 🚀 Panduan Setup & Instalasi
-
-### 1. Struktur File
-- `index.html` — Antarmuka Single Page Application (SPA).
-- `style.css` — Styling modern, responsive, dan animasi.
-- `app.js` — Core JavaScript engine, RBAC, live search, pagination, dan logger.
-- `config.js` — File konfigurasi API dan aplikasi.
-- `Code.gs` — Backend Google Apps Script (Web App API).
-
-### 2. Setup Google Apps Script (Backend Google Sheets)
-1. Buka Google Sheets baru atau spreadsheet yang sudah ada.
-2. Klik menu **Extensions** > **Apps Script**.
-3. Hapus kode default, lalu salin seluruh isi file `Code.gs` ke dalam editor Apps Script.
-4. Jalankan fungsi `setupDatabase()` sekali untuk otomatis membuat sheet:
-   - `MEMBERS`
-   - `USERS`
-   - `ACTIVITY_LOG`
-   - `TRANSAKSI`
+1. Buka spreadsheet Google Sheets Anda (Sheet `DATA BANK`).
+2. Masuk ke menu **Extensions** > **Apps Script**.
+3. Hapus kode lama, lalu salin seluruh isi file **`Code.gs`**.
+4. Jalankan fungsi `setupDashboard()` sekali.
 5. Klik **Deploy** > **New Deployment**:
    - Tipe: **Web App**
    - Execute as: **Me**
-   - Who has access: **Anyone** (Siapa saja)
-6. Salin **Web App URL** yang didapatkan, lalu tempelkan ke `config.js` pada variabel `API_URL` atau melalui menu **Pengaturan** di dashboard.
-
-### 3. Deploy Frontend (GitHub Pages)
-1. Upload file `index.html`, `style.css`, `app.js`, `config.js`, dan `logo.png` ke repository GitHub Anda.
-2. Masuk ke **Settings** > **Pages** di repository GitHub.
-3. Pilih branch `main` (atau `master`) dan folder `/ (root)`, lalu klik **Save**.
-4. Website siap diakses secara online dan aman.
-
----
-
-## 🔑 Akun Demo Pengujian (5 Level Akses)
-
-| Role | Username | Password | Akses Utama |
-| :--- | :--- | :--- | :--- |
-| **SUPER MASTER** | `supermaster` | `admin123` | Akses Penuh ke Semua Fitur & Data |
-| **LEADER** | `leader_ops` | `leader123` | Monitoring, Ubah Role, Log Aktivitas |
-| **CS** | `cs_support` | `cs123` | Data Member & Verifikasi Cek Member |
-| **KAPTEN** | `kapten_ops` | `kapten123` | Monitoring & Verifikasi Cek Member |
-| **KASIR** | `kasir_bank` | `kasir123` | Data Transaksi Kasir & Mutasi |
+   - Who has access: **Anyone**
+6. Salin **Web App URL** dan masukkan ke `config.js` pada `API_URL` atau via menu **Pengaturan** di dashboard.
+7. Upload folder web ke **GitHub Pages**.
