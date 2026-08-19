@@ -102,17 +102,117 @@
       </section>
 
       <!-- SETTINGS -->
-      <section id="settingsPage" class="page hidden">
-        <div class="panel"><h3>Settings</h3><p>Versi 1.1.1</p></div>
-      </section>
-    </main>
+     <section id="settingsPage" class="page hidden">
+  <div class="panel">
+    <h3>⚙️ Settings &amp; Data Rekap HP</h3>
+    <p style="margin-bottom:20px; color:#8899aa;">Backend: Apps Script API. Data: Google Sheets.</p>
+
+    <!-- ===== REKAP HP ===== -->
+    <div style="background:#1e2a3a; border-radius:12px; padding:20px; margin-top:16px;">
+
+      <h4 style="margin:0 0 12px 0; color:#ffffff; border-bottom:2px solid #2a3a4e; padding-bottom:8px;">📱 REKAP JUMLAH HP</h4>
+
+      <!-- 1. HP BANK KAS -->
+      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #f39c12;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <span style="font-weight:600; color:#f1c40f; font-size:15px;">🏦 HP BANK KAS</span>
+          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">4 HP</strong></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
+          <span>BCA : <strong style="color:#f39c12;">2</strong></span>
+          <span>Mandiri : <strong style="color:#f39c12;">2</strong></span>
+        </div>
+      </div>
+
+      <!-- 2. HP WD & DP -->
+      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #3498db;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <span style="font-weight:600; color:#5dade2; font-size:15px;">💳 HP WD &amp; DP</span>
+          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">17 HP</strong></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
+          <span>BCA : <strong style="color:#5dade2;">5</strong></span>
+          <span>Mandiri : <strong style="color:#5dade2;">4</strong></span>
+          <span>Maybank : <strong style="color:#5dade2;">1</strong></span>
+          <span>BNI : <strong style="color:#5dade2;">2</strong></span>
+          <span>BRI : <strong style="color:#5dade2;">5</strong></span>
+          <span>CIMB : <strong style="color:#5dade2;">0</strong></span>
+        </div>
+      </div>
+
+      <!-- 3. HP DEPO -->
+      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #2ecc71;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <span style="font-weight:600; color:#58d68d; font-size:15px;">📥 HP DEPO</span>
+          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">28 HP</strong></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
+          <span>BCA : <strong style="color:#58d68d;">9</strong></span>
+          <span>BRI : <strong style="color:#58d68d;">8</strong></span>
+          <span>BNI : <strong style="color:#58d68d;">3</strong></span>
+          <span>Maybank : <strong style="color:#58d68d;">2</strong></span>
+          <span>Danamon : <strong style="color:#58d68d;">1</strong></span>
+          <span>Mandiri : <strong style="color:#58d68d;">4</strong></span>
+          <span>CIMB : <strong style="color:#58d68d;">1</strong></span>
+        </div>
+      </div>
+
+      <!-- 4. HP WD BERSIH & KOTOR -->
+      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #9b59b6;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <span style="font-weight:600; color:#af7ac5; font-size:15px;">🧹 HP WD BERSIH &amp; KOTOR</span>
+          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">77 HP</strong></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
+          <span>BCA : <strong style="color:#af7ac5;">47</strong></span>
+          <span>BRI : <strong style="color:#af7ac5;">21</strong></span>
+          <span>BNI : <strong style="color:#af7ac5;">3</strong></span>
+          <span>Danamon : <strong style="color:#af7ac5;">2</strong></span>
+          <span>Mandiri : <strong style="color:#af7ac5;">3</strong></span>
+          <span>Maybank : <strong style="color:#af7ac5;">1</strong></span>
+        </div>
+      </div>
+
+      <!-- 5. DATA HP -->
+      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #1abc9c;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <span style="font-weight:600; color:#48c9b0; font-size:15px;">📊 DATA HP</span>
+          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">21 HP</strong></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
+          <span>HP Baru : <strong style="color:#48c9b0;">10</strong></span>
+          <span>HP : <strong style="color:#48c9b0;">11</strong></span>
+        </div>
+      </div>
+
+      <!-- 6. HP BERMASALAH / OFF -->
+      <div style="background:#16212e; border-radius:10px; padding:14px 18px; margin-bottom:14px; border-left:4px solid #e74c3c;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <span style="font-weight:600; color:#ec7063; font-size:15px;">⚠️ HP BERMASALAH / OFF</span>
+          <span style="color:#aab8c5; font-size:13px;">TOTAL: <strong style="color:#fff;">21 HP</strong></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:12px 28px; margin-top:6px; color:#ccd7e4; font-size:14px;">
+          <span>Sisa HP Bermasalah/Off : <strong style="color:#ec7063;">21 HP</strong></span>
+        </div>
+      </div>
+
+      <!-- ===== RINGKASAN TOTAL ===== -->
+      <div style="background:#0f1a24; border-radius:12px; padding:16px 20px; margin-top:18px; border:1px solid #2a3a4e;">
+        <div style="font-weight:700; color:#ffffff; font-size:16px; margin-bottom:8px;">📌 RINGKASAN TOTAL</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px 20px; color:#ccd7e4; font-size:14px;">
+          <span>HP Bank Kas : <strong style="color:#f39c12;">4 HP</strong></span>
+          <span>HP WD &amp; DP : <strong style="color:#5dade2;">17 HP</strong></span>
+          <span>HP Depo : <strong style="color:#58d68d;">28 HP</strong></span>
+          <span>HP WD Bersih &amp; Kotor : <strong style="color:#af7ac5;">77 HP</strong></span>
+          <span>HP Baru : <strong style="color:#48c9b0;">10 HP</strong></span>
+          <span>HP : <strong style="color:#48c9b0;">11 HP</strong></span>
+          <span>HP Bermasalah / Off : <strong style="color:#ec7063;">21 HP</strong></span>
+        </div>
+      </div>
+
+    </div>
+    <!-- ===== END REKAP HP ===== -->
+
   </div>
-
-  <!-- LOADING & TOAST -->
-  <div id="loading" class="loading hidden"><div class="spinner"></div></div>
-  <div id="toast" class="toast"></div>
-
-  <script src="config.js?v=20260819-4"></script>
-  <script src="app.js?v=20260819-4"></script>
-</body>
+</section>
 </html>
