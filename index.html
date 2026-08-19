@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Office Data Center</title>
   <link rel="stylesheet" href="style.css?v=20260819-4" />
-  <!-- Google Fonts (opsional, bisa di CSS) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -44,7 +43,7 @@
 
     <main class="main">
       <header class="topbar">
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+        <div class="topbar-left">
           <h2 id="pageTitle">Data Office</h2>
           <span id="shiftText">SHIFT -</span>
           <div id="onlineUsers" class="online-users"></div>
@@ -55,8 +54,15 @@
       <!-- DASHBOARD -->
       <section id="dashboardPage" class="page">
         <div class="shift-card">
-          <div><b>Shift Aktif: <span id="shiftName">-</span></b><small id="shiftInfo">-</small></div>
-          <button id="newShiftBtn" type="button">+ MULAI SHIFT BARU</button>
+          <div class="shift-info">
+            <b>Shift Aktif: <span id="shiftName">-</span></b>
+            <small id="shiftInfo">-</small>
+          </div>
+          <div class="shift-actions">
+            <button id="shiftPagiBtn" type="button" class="shift-btn pagi">🌅 Shift Pagi</button>
+            <button id="shiftMalamBtn" type="button" class="shift-btn malam">🌙 Shift Malam</button>
+            <button id="newShiftBtn" type="button">+ MULAI SHIFT BARU</button>
+          </div>
         </div>
         <div class="stats">
           <div class="stat"><small>WITHDRAW</small><b id="withdrawCount">0</b></div>
@@ -71,7 +77,7 @@
             <button id="refreshBtn" type="button">↻ Refresh</button>
           </div>
           <div class="categories">
-            <button type="button" data-category="withdraw">BANK WITHDRAW</button>
+            <button type="button" data-category="withdraw" class="active-cat">BANK WITHDRAW</button>
             <button type="button" data-category="depo">HP DEPO</button>
             <button type="button" data-category="bankKas">HP BANK KAS</button>
             <button type="button" data-category="token">TOKEN BCA</button>
@@ -106,7 +112,6 @@
   <div id="loading" class="loading hidden"><div class="spinner"></div></div>
   <div id="toast" class="toast"></div>
 
-  <!-- SCRIPTS -->
   <script src="config.js?v=20260819-4"></script>
   <script src="app.js?v=20260819-4"></script>
 </body>
