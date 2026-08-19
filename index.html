@@ -1,47 +1,254 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Office Data Center</title>
-  <link rel="stylesheet" href="style.css?v=20260819-4">
+  <!-- Stylesheet tetap terpisah (style.css) -->
+  <link rel="stylesheet" href="style.css?v=20260819-4" />
+  <style>
+    /* reset & base rapi (tidak mengubah logika, hanya penampilan) */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f4f7fc; }
+    .hidden { display: none !important; }
+    .app { display: flex; min-height: 100vh; }
+
+    /* login screen */
+    .login-screen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; background: linear-gradient(145deg, #eef2f7, #d9e2ec);
+      padding: 1rem;
+    }
+    .login-card {
+      background: #ffffff; padding: 2.5rem 2rem 2rem; border-radius: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 8px 20px rgba(0,20,50,0.06);
+      width: 100%; max-width: 400px; text-align: center;
+      transition: 0.2s;
+    }
+    .login-card .logo {
+      width: 80px; height: 80px; margin: 0 auto 0.75rem;
+      background: #0b2b4c; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .login-card .logo img { width: 60px; height: 60px; object-fit: contain; border-radius: 12px; }
+    .login-card h1 { font-weight: 600; font-size: 1.8rem; color: #0b1e2e; letter-spacing: -0.5px; margin-bottom: 0.1rem; }
+    .login-card p { color: #4a5b6e; font-size: 0.95rem; margin-bottom: 1.75rem; border-bottom: 1px solid #e9edf2; padding-bottom: 0.75rem; }
+    .login-input {
+      width: 100%; padding: 0.9rem 1.2rem; border-radius: 60px; border: 1px solid #d0d9e6;
+      font-size: 1rem; background: #f8fafc; transition: 0.2s; margin-bottom: 1rem;
+    }
+    .login-input:focus { outline: none; border-color: #2b6b9c; box-shadow: 0 0 0 3px rgba(43,107,156,0.15); }
+    #loginBtn {
+      width: 100%; padding: 0.9rem; border-radius: 60px; border: none;
+      background: #0b2b4c; color: white; font-weight: 600; font-size: 1.1rem;
+      cursor: pointer; transition: 0.2s; letter-spacing: 0.3px;
+    }
+    #loginBtn:hover { background: #123b63; transform: scale(0.98); }
+    .login-card small { display: block; margin-top: 1rem; color: #5d6f83; font-size: 0.8rem; }
+    .login-status { margin-top: 0.75rem; color: #b13e3e; font-size: 0.9rem; }
+
+    /* sidebar */
+    .sidebar {
+      width: 260px; background: #0b1e2e; color: #d6e2f0; padding: 1.5rem 1rem;
+      display: flex; flex-direction: column; gap: 0.25rem; flex-shrink: 0;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1.5rem;
+      border-bottom: 1px solid #1f3347; margin-bottom: 1.5rem;
+    }
+    .brand-logo { 
+      width: 44px; height: 44px; background: #1f3b54; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-logo img { width: 34px; height: 34px; object-fit: contain; border-radius: 8px; }
+    .brand div:last-child { line-height: 1.2; }
+    .brand b { display: block; color: white; font-size: 1rem; }
+    .brand small { font-size: 0.6rem; opacity: 0.7; letter-spacing: 1px; }
+
+    .nav {
+      background: transparent; border: none; color: #b0c7dd; padding: 0.7rem 1rem;
+      text-align: left; font-size: 0.9rem; border-radius: 12px; cursor: pointer;
+      transition: 0.15s; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .nav:hover { background: #1d3347; color: white; }
+    .nav.active { background: #1f3b54; color: white; font-weight: 500; }
+    .nav.logout { margin-top: auto; color: #e67e7e; }
+    .nav.logout:hover { background: #3d1f2b; color: #ffa5a5; }
+
+    /* main */
+    .main { flex: 1; padding: 1.5rem 2rem 2rem; background: #f4f7fc; overflow-x: auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: white; padding: 0.75rem 1.5rem; border-radius: 60px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 2rem;
+    }
+    .topbar h2 { font-size: 1.2rem; font-weight: 600; color: #152b3e; margin-right: 1.2rem; }
+    #shiftText { background: #eef3f8; padding: 0.2rem 0.9rem; border-radius: 30px; font-size: 0.75rem; color: #1e3a57; }
+    .online-users { display: inline-block; margin-left: 1rem; font-size: 0.8rem; background: #d7e6f5; padding: 0.2rem 0.9rem; border-radius: 30px; }
+    .profile { text-align: right; line-height: 1.3; }
+    .profile b { display: block; font-size: 0.9rem; color: #0b1e2e; }
+    .profile small { font-size: 0.7rem; color: #4d687f; }
+
+    /* shift card */
+    .shift-card {
+      background: white; border-radius: 28px; padding: 1rem 1.8rem;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .shift-card b { font-size: 1.1rem; color: #0b2b4c; }
+    .shift-card small { color: #4d687f; margin-left: 0.6rem; }
+    #newShiftBtn {
+      background: #0b2b4c; border: none; padding: 0.5rem 1.5rem; border-radius: 60px;
+      color: white; font-weight: 500; cursor: pointer; transition: 0.15s;
+    }
+    #newShiftBtn:hover { background: #1a3f60; }
+
+    /* stats */
+    .stats {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(110px,1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .stat {
+      background: white; padding: 0.8rem 0.5rem; border-radius: 24px;
+      text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .stat small { display: block; font-size: 0.7rem; color: #4f6b82; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat b { font-size: 1.6rem; color: #0b1e2e; }
+
+    /* panel & table */
+    .panel {
+      background: white; border-radius: 28px; padding: 1.5rem 1.8rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.02);
+    }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; margin-bottom: 1rem;
+    }
+    .toolbar input, .toolbar select {
+      padding: 0.5rem 1rem; border-radius: 60px; border: 1px solid #d7e0ea;
+      background: #fafcff; font-size: 0.9rem;
+    }
+    .toolbar button {
+      background: #e6edf5; border: none; padding: 0.5rem 1.2rem;
+      border-radius: 60px; font-weight: 500; cursor: pointer;
+    }
+    .categories { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.2rem; }
+    .categories button {
+      background: #eef3f9; border: none; padding: 0.4rem 1.2rem; border-radius: 60px;
+      font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: 0.1s;
+    }
+    .categories button:hover { background: #d7e2ef; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th { text-align: left; padding: 0.5rem 0.2rem; color: #2f4b67; border-bottom: 1px solid #e0e8f0; }
+    td { padding: 0.5rem 0.2rem; border-bottom: 1px solid #eef2f7; }
+    .page { display: block; }
+    .page.hidden { display: none; }
+
+    /* loading & toast */
+    .loading { position: fixed; inset: 0; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; z-index: 999; }
+    .spinner { width: 40px; height: 40px; border-radius: 50%; border: 4px solid #d0dcec; border-top-color: #0b2b4c; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: #1f3347; color: white; padding: 0.6rem 1.6rem; border-radius: 60px; font-size: 0.9rem; opacity: 0; transition: 0.3s; z-index: 999; }
+    .toast.show { opacity: 1; }
+  </style>
 </head>
 <body>
+  <!-- LOGIN SCREEN -->
   <div id="loginScreen" class="login-screen">
     <div class="login-card">
-      <div class="logo">O</div>
+      <div class="logo">
+        <img src="https://i.ibb.co/byyM1kJ/image.png" alt="logo" />
+      </div>
       <h1>Office Data Center</h1>
       <p>Secure Internal Dashboard</p>
-      <input id="loginEmail" class="login-input" type="email" autocomplete="email" placeholder="Masukkan email">
+      <input id="loginEmail" class="login-input" type="email" autocomplete="email" placeholder="Masukkan email" />
       <button id="loginBtn" type="button">MASUK</button>
       <small>Masukkan email yang terdaftar pada Users.</small>
       <div id="loginStatus" class="login-status"></div>
     </div>
   </div>
 
+  <!-- APP -->
   <div id="app" class="app hidden">
     <aside class="sidebar">
-      <div class="brand"><div class="brand-logo">O</div><div><b>OFFICE DATA</b><small>DATA CENTER</small></div></div>
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="https://pulitoto90.com/resources/images/logo.png" alt="logo" />
+        </div>
+        <div><b>OFFICE DATA</b><small>DATA CENTER</small></div>
+      </div>
       <button class="nav active" data-page="dashboard">▣ Dashboard</button>
       <button class="nav" data-page="history">◷ Riwayat</button>
       <button class="nav" id="usersNav" data-page="users">◎ Users</button>
       <button class="nav" data-page="settings">⚙ Settings</button>
       <button class="nav logout" id="logoutBtn">⇥ Logout</button>
     </aside>
+
     <main class="main">
-      <header class="topbar"><div><h2 id="pageTitle">Data Office</h2><span id="shiftText">SHIFT -</span><div id="onlineUsers" class="online-users"></div></div><div class="profile"><b id="userEmail">-</b><small id="userRole">-</small></div></header>
+      <header class="topbar">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+          <h2 id="pageTitle">Data Office</h2>
+          <span id="shiftText">SHIFT -</span>
+          <div id="onlineUsers" class="online-users"></div>
+        </div>
+        <div class="profile"><b id="userEmail">-</b><small id="userRole">-</small></div>
+      </header>
+
+      <!-- DASHBOARD -->
       <section id="dashboardPage" class="page">
-        <div class="shift-card"><div><b>Shift Aktif: <span id="shiftName">-</span></b><small id="shiftInfo">-</small></div><button id="newShiftBtn" type="button">+ MULAI SHIFT BARU</button></div>
-        <div class="stats"><div class="stat"><small>WITHDRAW</small><b id="withdrawCount">0</b></div><div class="stat"><small>DEPO</small><b id="depoCount">0</b></div><div class="stat"><small>BANK KAS</small><b id="bankKasCount">0</b></div><div class="stat"><small>TOKEN</small><b id="tokenCount">0</b></div></div>
-        <div class="panel"><div class="toolbar"><input id="searchInput" placeholder="Cari bank / nama..."><select id="checkFilter"><option value="all">Semua</option><option value="unchecked">Belum Cek</option><option value="checked">Sudah Cek</option></select><button id="refreshBtn" type="button">↻ Refresh</button></div><div class="categories"><button type="button" data-category="withdraw">BANK WITHDRAW</button><button type="button" data-category="depo">HP DEPO</button><button type="button" data-category="bankKas">HP BANK KAS</button><button type="button" data-category="token">TOKEN BCA</button></div><div class="table-wrap"><table><thead><tr><th>NO</th><th>BANK</th><th>NAMA</th><th>CHECK</th><th>ACTION</th></tr></thead><tbody id="dataTable"></tbody></table></div></div>
+        <div class="shift-card">
+          <div><b>Shift Aktif: <span id="shiftName">-</span></b><small id="shiftInfo">-</small></div>
+          <button id="newShiftBtn" type="button">+ MULAI SHIFT BARU</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><small>WITHDRAW</small><b id="withdrawCount">0</b></div>
+          <div class="stat"><small>DEPO</small><b id="depoCount">0</b></div>
+          <div class="stat"><small>BANK KAS</small><b id="bankKasCount">0</b></div>
+          <div class="stat"><small>TOKEN</small><b id="tokenCount">0</b></div>
+        </div>
+        <div class="panel">
+          <div class="toolbar">
+            <input id="searchInput" placeholder="Cari bank / nama..." />
+            <select id="checkFilter"><option value="all">Semua</option><option value="unchecked">Belum Cek</option><option value="checked">Sudah Cek</option></select>
+            <button id="refreshBtn" type="button">↻ Refresh</button>
+          </div>
+          <div class="categories">
+            <button type="button" data-category="withdraw">BANK WITHDRAW</button>
+            <button type="button" data-category="depo">HP DEPO</button>
+            <button type="button" data-category="bankKas">HP BANK KAS</button>
+            <button type="button" data-category="token">TOKEN BCA</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>NO</th><th>BANK</th><th>NAMA</th><th>CHECK</th><th>ACTION</th></tr></thead>
+              <tbody id="dataTable"></tbody>
+            </table>
+          </div>
+        </div>
       </section>
-      <section id="historyPage" class="page hidden"><div class="panel"><h3>Riwayat Edit & Pengecekan</h3><div id="historyTable"></div></div></section>
-      <section id="usersPage" class="page hidden"><div class="panel"><h3>User Management</h3><div id="usersTable"></div></div></section>
-      <section id="settingsPage" class="page hidden"><div class="panel"><h3>Settings</h3><p>Backend: Apps Script API. Data: Google Sheets.</p></div></section>
+
+      <!-- HISTORY -->
+      <section id="historyPage" class="page hidden">
+        <div class="panel"><h3>Riwayat Edit & Pengecekan</h3><div id="historyTable"></div></div>
+      </section>
+
+      <!-- USERS -->
+      <section id="usersPage" class="page hidden">
+        <div class="panel"><h3>User Management</h3><div id="usersTable"></div></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settingsPage" class="page hidden">
+        <div class="panel"><h3>Settings</h3><p>Backend: Apps Script API. Data: Google Sheets.</p></div>
+      </section>
     </main>
   </div>
+
+  <!-- LOADING & TOAST -->
   <div id="loading" class="loading hidden"><div class="spinner"></div></div>
   <div id="toast" class="toast"></div>
+
+  <!-- SCRIPTS (logika tidak diubah) -->
   <script src="config.js?v=20260819-4"></script>
   <script src="app.js?v=20260819-4"></script>
 </body>
