@@ -1,56 +1,40 @@
-# OFFICE DATA CENTER — Dashboard Monitoring Kelengkapan HP & Perangkat
+# Office Data Center
 
-Dashboard monitoring modern, cepat, dan terhubung langsung ke Google Sheets `DATA BANK` untuk pengecekan fisik kelengkapan HP Office (HP Withdraw, HP Depo, HP Bank Kas, dan Token BCA Office).
+Arsitektur:
+GitHub Pages -> Apps Script API -> Google Sheets
 
----
+Sheet yang digunakan:
+- DATA BANK
+- Users
+- Audit_Log
+- Shift_Control
 
-## 🌟 Fitur Utama & Kategori Perangkat
+## Setup
+1. Buat Apps Script yang terhubung ke spreadsheet.
+2. Masukkan `Code.gs` dan deploy ulang sebagai Web App (versi baru, akses "Siapa saja").
+3. Salin URL Web App ke `config.js`.
+4. Upload seluruh folder ini ke GitHub.
+5. Aktifkan GitHub Pages dari branch repository.
 
-### 1. Pengecekan Kelengkapan HP (Status ADA / SUDAH DI CEK vs BELUM DI CEK)
-- **Terhubung Langsung ke Sheet `DATA BANK`**:
-  - 📱 **HP WITHDRAW** (77 Perangkat di Kolom D & Cell E4:E80)
-  - 📱 **HP DEPO** (27 Perangkat di Kolom H & Cell I4:I35)
-  - 📱 **HP BANK KAS** (21 Perangkat di Kolom M & Cell N4:N30)
-  - 🔑 **TOKEN BCA OFFICE** (12 Token di Kolom Q, R, U, V)
-- **Tanpa Checkbox & Tanpa Reload**:
-  - Tombol interaktif `BELUM DI CEK` (Warna Amber) diklik langsung berubah menjadi `SUDAH DI CEK` (Warna Hijau Emerald) seketika (0ms).
-  - Kolom checkbox di Google Sheet otomatis terisi `TRUE` / `FALSE`.
-  - Otomatis mencatat nama & role staf yang mengecek serta waktu pengecekan.
+## Role & Akses
+Role yang tersedia sekarang: `SUPER MASTER`, `LEADER`, `CS`, `KAPTEN`, `KASIR` (kolom `Role` di sheet `Users`).
 
----
+- **SUPER MASTER**: akses penuh, satu-satunya yang boleh memberi/mencabut role SUPER MASTER ke orang lain.
+- **LEADER**: bisa atur role staf lain (kecuali SUPER MASTER), mulai shift baru, lihat halaman Users & Riwayat, plus cek/edit data.
+- **CS / KAPTEN / KASIR**: bisa cek & edit data di dashboard, tapi tidak bisa atur user/role/shift.
 
-### 2. Format Log Standar (Tercatat ke Sheet `Audit_Log`)
-Setiap kali status HP diubah, langsung tercatat otomatis:
-```text
-LEADER - WD BCA / RATNASARI - SUDAH DI CEK - 19/08/2026 22:26
-```
+Role bisa diubah langsung dari dashboard: buka menu **Users** (hanya muncul untuk SUPER MASTER/LEADER), lalu pilih role baru dari dropdown di baris user yang dituju — tersimpan otomatis begitu dipilih.
 
----
+> Kalau kamu sebelumnya sudah punya user dengan role lama (`MASTER`/`MEMBER`), ganti manual dulu di sheet `Users` ke salah satu dari 5 role di atas, karena role lama tidak lagi dikenali sistem.
 
-### 3. 5 Level Akses (Sheet `Users`)
-- 👑 **SUPER MASTER**: Full Access semua data, atur role semua staf, mulai shift baru / reset status HP.
-- 🎖️ **LEADER**: Full View semua data, atur role staf, memantau log aktivitas.
-- 🎧 **CS**: Fokus pengecekan & monitoring kelengkapan HP.
-- 🧭 **KAPTEN**: Fokus monitoring & pengecekan fisik perangkat.
-- 💳 **KASIR**: Fokus mutasi kas & perangkat kasir.
+## Logo
+Kalau mau pakai foto/logo sendiri, taruh file bernama `logo.png` (atau `.jpg`/`.svg`) di folder yang sama dengan `index.html`, lalu upload ke GitHub. Dashboard otomatis mendeteksi dan memakainya sebagai logo. Kalau file tidak ada, tampilan tetap fallback ke logo huruf "O" seperti biasa — tidak ada yang rusak.
 
----
+## Fitur baru: siapa yang cek
+- **Dicek oleh siapa (riwayat)**: setiap kali checkbox diklik, Apps Script menyimpan email + nama staf + waktu ke Script Properties (`CHECK_META_V1`). Info ini muncul sebagai label kecil "oleh <nama>" di bawah status SUDAH CEK/BELUM CEK di tabel.
+- **Sedang online sekarang (real-time)**: setiap 20 detik, browser staf yang sedang login mengirim `heartbeat` ke Apps Script. Daftar staf yang aktif dalam 45 detik terakhir tersimpan sementara di CacheService dan tampil sebagai titik hijau berkedip + daftar nama di pojok kanan atas dashboard.
+- Login staf tetap memakai email pribadi masing-masing yang sudah didaftarkan (status `ACTIVE`) di sheet `Users` — tidak ada akun bersama.
+- Tidak perlu kolom/sheet tambahan untuk fitur ini; datanya tersimpan otomatis di Script Properties (attribution, persisten) dan CacheService (online, sementara).
 
-### 4. Kontrol Shift Operasional (`Shift_Control`)
-- Super Master dan Leader dapat menekan tombol **`+ MULAI SHIFT BARU`** saat pergantian shift.
-- Sistem otomatis me-reset seluruh status pengecekan HP untuk shift berikutnya dan mencatat riwayat ke log.
-
----
-
-## 🚀 Panduan Setup ke Google Sheets Anda
-
-1. Buka spreadsheet Google Sheets Anda (Sheet `DATA BANK`).
-2. Masuk ke menu **Extensions** > **Apps Script**.
-3. Hapus kode lama, lalu salin seluruh isi file **`Code.gs`**.
-4. Jalankan fungsi `setupDashboard()` sekali.
-5. Klik **Deploy** > **New Deployment**:
-   - Tipe: **Web App**
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-6. Salin **Web App URL** dan masukkan ke `config.js` pada `API_URL` atau via menu **Pengaturan** di dashboard.
-7. Upload folder web ke **GitHub Pages**.
+## Fitur baru: status cek instan
+Tombol "SUDAH DI CEK / BELUM DI CEK" (menggantikan checkbox) langsung berubah begitu diklik — tidak menunggu respons server dulu (optimistic update), jadi terasa instan meski cek sistem sedang ramai. Kalau ternyata gagal tersimpan di server, tombol otomatis kembali ke status semula dan muncul notifikasi error.
