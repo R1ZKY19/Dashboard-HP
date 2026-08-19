@@ -154,6 +154,13 @@ button{transition:all .18s ease}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
 .topbar h2{font-family:Manrope,Inter,sans-serif;margin:0;font-size:25px;letter-spacing:-.55px}
 .topbar span{display:inline-block;margin-top:5px;color:var(--muted-2);font-size:9px;font-weight:700;letter-spacing:1px}
+.online-users{display:flex;align-items:center;gap:6px;margin-top:9px;color:var(--muted);font-size:10px;font-weight:600;flex-wrap:wrap}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 0 3px rgba(50,201,138,.16);display:inline-block;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.online-user{color:#cbd8ea}
+.online-user:after{content:","}
+.online-user:last-child:after{content:""}
+.checked-by{display:block;margin-top:3px;color:var(--muted-2);font-size:9px;font-weight:600}
 .profile{text-align:right;padding:8px 12px;border:1px solid var(--border-soft);border-radius:11px;background:rgba(16,24,35,.7)}
 .profile b{display:block;font-size:11px;font-weight:700}
 .profile small{color:var(--accent);font-size:9px;font-weight:700;display:block;margin-top:3px}

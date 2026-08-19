@@ -2,6 +2,8 @@ let dashboard=null;
 let currentCategory="withdraw";
 let sessionToken=localStorage.getItem(CONFIG.SESSION_KEY)||"";
 const apiCallbacks=new Map();
+let heartbeatTimer=null;
+const HEARTBEAT_INTERVAL=20000;
 
 // Simple JSONP transport: GitHub Pages loads Apps Script as a script tag.
 // This avoids CORS, hidden iframes and postMessage completely.
@@ -57,10 +59,32 @@ async function init(){
   try{
     showLoading();
     dashboard=await api("getDashboard");
-    renderUser();renderStats();renderTable();
+    renderUser();renderStats();renderTable();renderOnline();
+    startHeartbeat();
   }catch(e){
     clearSession();showLogin();setLoginStatus(e.message);
   }finally{hideLoading();}
+}
+
+function startHeartbeat(){
+  stopHeartbeat();
+  heartbeatTimer=setInterval(async()=>{
+    if(!sessionToken)return;
+    try{
+      const page=document.querySelector(".page:not(.hidden)")?.id.replace("Page","")||"dashboard";
+      const result=await api("heartbeat",{page});
+      if(dashboard){dashboard.online=result.online;renderOnline();}
+    }catch(e){/* silent - koneksi sementara terputus, coba lagi di siklus berikutnya */}
+  },HEARTBEAT_INTERVAL);
+}
+function stopHeartbeat(){if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null;}}
+
+function renderOnline(){
+  const el=document.getElementById("onlineUsers");
+  if(!el)return;
+  const list=dashboard?.online||[];
+  if(!list.length){el.innerHTML="";return;}
+  el.innerHTML=`<span class="online-dot"></span>Online: `+list.map(u=>`<span class="online-user" title="${esc(u.email)}">${esc(u.name)}</span>`).join(", ");
 }
 
 function bindEvents(){
@@ -116,17 +140,33 @@ function renderTable(){
   const filter=document.getElementById("checkFilter")?.value||"all";
   const data=getData().filter(x=>{const text=`${x.number} ${x.bank} ${x.name}`.toLowerCase();if(q&&!text.includes(q))return false;if(filter==="checked"&&!x.checked)return false;if(filter==="unchecked"&&x.checked)return false;return true});
   const body=document.getElementById("dataTable");body.innerHTML="";
-  data.forEach(item=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${esc(item.number)}</td><td>${esc(item.bank)}</td><td>${esc(item.name)}</td><td><input class="check" type="checkbox" ${item.checked?"checked":""}><span class="${item.checked?"checked":"pending"}">${item.checked?"SUDAH CEK":"BELUM CEK"}</span></td><td><button class="edit-btn">Edit</button></td>`;tr.querySelector(".check").onchange=e=>updateCheck(item.checkCell,e.target.checked);tr.querySelector(".edit-btn").onclick=()=>editData(item.nameCell,item.name);body.appendChild(tr)});
+  data.forEach(item=>{
+    const tr=document.createElement("tr");
+    const byLine=item.checked&&item.checkedBy?`<small class="checked-by" title="${esc(formatTime(item.checkedAt))}">oleh ${esc(item.checkedBy)}</small>`:"";
+    tr.innerHTML=`<td>${esc(item.number)}</td><td>${esc(item.bank)}</td><td>${esc(item.name)}</td><td><input class="check" type="checkbox" ${item.checked?"checked":""}><span class="${item.checked?"checked":"pending"}">${item.checked?"SUDAH CEK":"BELUM CEK"}</span>${byLine}</td><td><button class="edit-btn">Edit</button></td>`;
+    tr.querySelector(".check").onchange=e=>updateCheck(item,e.target.checked);
+    tr.querySelector(".edit-btn").onclick=()=>editData(item.nameCell,item.name);
+    body.appendChild(tr);
+  });
 }
 
-async function updateCheck(cell,checked){try{showLoading();await api("updateCheck",{cell,checked});showToast(checked?"✓ Data berhasil dicek":"✓ Check dibatalkan");await refreshDashboard()}catch(e){showToast(e.message)}finally{hideLoading()}}
+async function updateCheck(item,checked){
+  try{
+    showLoading();
+    const result=await api("updateCheck",{cell:item.checkCell,checked});
+    item.checked=result.checked;item.checkedBy=result.checkedBy;item.checkedAt=result.checkedAt;
+    showToast(checked?`✓ Dicek oleh ${result.checkedBy}`:"✓ Check dibatalkan");
+    renderTable();
+  }catch(e){showToast(e.message);await refreshDashboard()}finally{hideLoading()}
+}
 async function editData(cell,oldValue){const value=prompt("Edit data:",oldValue);if(value===null)return;try{showLoading();await api("editData",{cell,value});showToast("✓ Data berhasil diubah");await refreshDashboard()}catch(e){showToast(e.message)}finally{hideLoading()}}
 async function newShift(){const current=dashboard.shift.shift||"SHIFT 1";const m=current.match(/(\d+)/);const next=`SHIFT ${m?Number(m[1])+1:2}`;const shift=prompt("Nama shift baru:",next);if(!shift)return;if(!confirm(`Mulai ${shift}? Semua checkbox aktif akan di-reset untuk shift baru.`))return;try{showLoading();await api("startNewShift",{shift});showToast(`✓ ${shift} berhasil dimulai`);await refreshDashboard()}catch(e){showToast(e.message)}finally{hideLoading()}}
-async function refreshDashboard(){try{dashboard=await api("getDashboard");renderUser();renderStats();renderTable()}catch(e){if(/session|login|token/i.test(e.message)){clearSession();showLogin();setLoginStatus(e.message)}else showToast(e.message)}}
+async function refreshDashboard(){try{dashboard=await api("getDashboard");renderUser();renderStats();renderTable();renderOnline()}catch(e){if(/session|login|token/i.test(e.message)){stopHeartbeat();clearSession();showLogin();setLoginStatus(e.message)}else showToast(e.message)}}
 async function loadHistory(){try{showLoading();const rows=await api("getHistory");document.getElementById("historyTable").innerHTML=`<div class="history-table"><table class="mini-table"><thead><tr><th>Waktu</th><th>Email</th><th>Action</th><th>Shift</th><th>Cell</th><th>Item</th><th>Old</th><th>New</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.timestamp)}</td><td>${esc(x.email)}</td><td>${esc(x.action)}</td><td>${esc(x.shift)}</td><td>${esc(x.cell)}</td><td>${esc(x.item)}</td><td>${esc(x.oldValue)}</td><td>${esc(x.newValue)}</td></tr>`).join("")}</tbody></table></div>`}catch(e){showToast(e.message)}finally{hideLoading()}}
 async function loadUsers(){try{showLoading();const rows=await api("getUsers");document.getElementById("usersTable").innerHTML=`<div class="history-table"><table class="mini-table"><thead><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.email)}</td><td>${esc(x.name)}</td><td>${esc(x.role)}</td><td>${esc(x.status)}</td></tr>`).join("")}</tbody></table></div>`}catch(e){showToast(e.message)}finally{hideLoading()}}
 function showPage(page){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));document.getElementById(page+"Page").classList.remove("hidden");document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));const btn=document.querySelector(`.nav[data-page="${page}"]`);if(btn)btn.classList.add("active");if(page==="history")loadHistory();if(page==="users")loadUsers()}
-async function logoutUser(){try{showLoading();if(sessionToken)await api("logout")}catch(e){}finally{clearSession();dashboard=null;showLogin();setLoginStatus("Kamu sudah logout.");hideLoading()}}
+async function logoutUser(){try{showLoading();if(sessionToken)await api("logout")}catch(e){}finally{stopHeartbeat();clearSession();dashboard=null;showLogin();setLoginStatus("Kamu sudah logout.");hideLoading()}}
+function formatTime(iso){if(!iso)return"";try{return new Date(iso).toLocaleString("id-ID",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}catch(e){return iso}}
 function showLoading(){document.getElementById("loading").classList.remove("hidden")}
 function hideLoading(){document.getElementById("loading").classList.add("hidden")}
 function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;setTimeout(()=>t.textContent="",3500)}
