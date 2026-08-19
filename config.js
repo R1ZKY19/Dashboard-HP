@@ -9,7 +9,7 @@
 const CONFIG = {
   APP_NAME: "MEMBER MONITOR PRO",
   APP_SUBTITLE: "Internal Monitoring & Verification System",
-  API_URL: "https://script.google.com/macros/s/AKfycbyNREOBPwm7Lg4FcoYjiQH4Y7KXMKqWP433Ut1hAmPg04Y7p1tQsKceeAbdrmYU6SJotQ/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbyn6HRefgbyHNeLodM-13a4ieAK07hej3gG9GPFQ7z3RSy8Z7n1NyUH0nxJKdmcZNXtNQ/exec",
   SESSION_KEY: "member_monitor_session_v2",
   CACHE_KEY: "member_monitor_cache_v2",
   HEARTBEAT_INTERVAL: 15000, // 15 detik
