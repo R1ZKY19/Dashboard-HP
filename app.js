@@ -81,6 +81,8 @@ async function init(){
     dashboard=await api("getDashboard");
     renderUser();renderStats();renderTable();renderOnline();
     startHeartbeat();
+    // Render settings jika sudah ada data
+    renderSettings();
   }catch(e){
     clearSession();showLogin();setLoginStatus(e.message);
   }finally{hideLoading();}
@@ -120,6 +122,177 @@ function bindEvents(){
   const filter=document.getElementById("checkFilter");if(filter)filter.onchange=renderTable;
   const refresh=document.getElementById("refreshBtn");if(refresh)refresh.onclick=refreshDashboard;
   const shift=document.getElementById("newShiftBtn");if(shift)shift.onclick=newShift;
+  
+  // Shift Pagi & Malam
+  const shiftPagi=document.getElementById("shiftPagiBtn");
+  const shiftMalam=document.getElementById("shiftMalamBtn");
+  if(shiftPagi) shiftPagi.onclick=()=>startShiftWithName("SHIFT PAGI");
+  if(shiftMalam) shiftMalam.onclick=()=>startShiftWithName("SHIFT MALAM");
+}
+
+// ===== SHIFT PAGI & MALAM =====
+async function startShiftWithName(shiftName){
+  if(!confirm(`Mulai ${shiftName}? Semua checkbox aktif akan di-reset untuk shift baru.`)) return;
+  try{
+    showLoading();
+    await api("startNewShift",{shift: shiftName});
+    showToast(`✓ ${shiftName} berhasil dimulai`);
+    await refreshDashboard();
+    // Highlight tombol shift yang aktif
+    document.querySelectorAll(".shift-btn").forEach(btn => btn.classList.remove("active-shift"));
+    if(shiftName === "SHIFT PAGI"){
+      document.getElementById("shiftPagiBtn")?.classList.add("active-shift");
+    } else if(shiftName === "SHIFT MALAM"){
+      document.getElementById("shiftMalamBtn")?.classList.add("active-shift");
+    }
+  }catch(e){
+    showToast(e.message);
+  }finally{hideLoading()}
+}
+
+// ===== SETTINGS - REKAP HP =====
+const settingsData = {
+  bankKas: {
+    title: '1. HP BANK KAS',
+    badge: 'BANK KAS',
+    badgeClass: 'badge-bank-kas',
+    data: [
+      { bank: 'BANK BCA', value: 2 },
+      { bank: 'BANK MANDIRI', value: 2 }
+    ],
+    total: 4
+  },
+  wdDp: {
+    title: '2. HP WD & DP',
+    badge: 'WD & DP',
+    badgeClass: 'badge-wd-dp',
+    data: [
+      { bank: 'BANK BCA', value: 5 },
+      { bank: 'BANK MANDIRI', value: 4 },
+      { bank: 'WD MAYBANK', value: 1 },
+      { bank: 'BANK BNI', value: 2 },
+      { bank: 'BANK BRI', value: 5 },
+      { bank: 'BANK CIMB', value: 0 }
+    ],
+    total: 17
+  },
+  depo: {
+    title: '3. HP DEPO',
+    badge: 'DEPO',
+    badgeClass: 'badge-depo',
+    data: [
+      { bank: 'BANK BCA', value: 9 },
+      { bank: 'BANK BRI', value: 8 },
+      { bank: 'BANK BNI', value: 3 },
+      { bank: 'BANK MAYBANK', value: 2 },
+      { bank: 'BANK DANAMON', value: 1 },
+      { bank: 'BANK MANDIRI', value: 4 },
+      { bank: 'BANK CIMB', value: 1 }
+    ],
+    total: 28
+  },
+  wdBersih: {
+    title: '4. HP WD BERSIH & KOTOR',
+    badge: 'WD BERSIH',
+    badgeClass: 'badge-wd-bersih',
+    data: [
+      { bank: 'BANK BCA', value: 47 },
+      { bank: 'BANK BRI', value: 21 },
+      { bank: 'BANK BNI', value: 3 },
+      { bank: 'BANK DANAMON', value: 2 },
+      { bank: 'BANK MANDIRI', value: 3 },
+      { bank: 'BANK MAYBANK', value: 1 }
+    ],
+    total: 77
+  },
+  dataHp: {
+    title: '5. DATA HP',
+    badge: 'DATA HP',
+    badgeClass: 'badge-data-hp',
+    data: [
+      { bank: 'HP BARU', value: 10 },
+      { bank: 'HP', value: 11 }
+    ],
+    total: 21
+  },
+  bermasalah: {
+    title: '6. HP BERMASALAH / OFF',
+    badge: 'BERMASALAH',
+    badgeClass: 'badge-bermasalah',
+    data: [
+      { bank: 'SISA HP BERMASALAH/OFF', value: 21 }
+    ],
+    total: 21
+  }
+};
+
+const summaryData = [
+  { label: 'HP BANK KAS', value: 4 },
+  { label: 'HP WD & DP', value: 17 },
+  { label: 'HP DEPO', value: 28 },
+  { label: 'HP WD BERSIH & KOTOR', value: 77 },
+  { label: 'HP BARU', value: 10 },
+  { label: 'HP', value: 11 },
+  { label: 'HP BERMASALAH / OFF', value: 21 }
+];
+
+function renderSettings() {
+  const container = document.getElementById('settingsContent');
+  if(!container) return;
+  
+  let html = '';
+
+  // Render setiap card
+  Object.values(settingsData).forEach(card => {
+    html += `
+      <div class="settings-card">
+        <div class="card-title">
+          ${card.title}
+          <span class="badge ${card.badgeClass}">${card.badge}</span>
+        </div>
+    `;
+    card.data.forEach(item => {
+      const valueColor = item.value === 0 ? '#d9534f' : '';
+      html += `
+        <div class="bank-item">
+          <span class="bank-name">${item.bank}</span>
+          <span class="bank-value" style="color:${valueColor}">${item.value}</span>
+        </div>
+      `;
+    });
+    html += `
+        <div class="total-row">
+          <span class="total-label">TOTAL</span>
+          <span class="total-value">${card.total} HP</span>
+        </div>
+      </div>
+    `;
+  });
+
+  // Render Ringkasan
+  html += `
+    <div class="settings-card summary-card">
+      <div class="card-title">
+        📊 RINGKASAN TOTAL
+        <span class="badge badge-ringkasan">TOTAL</span>
+      </div>
+      <div class="summary-grid">
+  `;
+  summaryData.forEach(item => {
+    const highlight = item.value > 50 ? 'highlight' : '';
+    html += `
+      <div class="summary-item ${highlight}">
+        <span class="sum-label">${item.label}</span>
+        <span class="sum-value">${item.value} HP</span>
+      </div>
+    `;
+  });
+  html += `
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
 }
 
 async function startLogin(){
@@ -132,7 +305,9 @@ async function startLogin(){
     sessionToken=result.token;
     localStorage.setItem(CONFIG.SESSION_KEY,sessionToken);
     dashboard=await api("getDashboard");
-    renderUser();renderStats();renderTable();setLoginStatus("");
+    renderUser();renderStats();renderTable();renderOnline();
+    renderSettings();
+    setLoginStatus("");
   }catch(e){clearSession();showLogin();setLoginStatus(e.message)}finally{hideLoading()}
 }
 
@@ -143,6 +318,16 @@ function renderUser(){
   document.getElementById("shiftText").textContent=dashboard.shift.shift;
   document.getElementById("shiftName").textContent=dashboard.shift.shift;
   document.getElementById("shiftInfo").textContent=`Mulai ${dashboard.shift.startTime} • ${dashboard.shift.startedBy}`;
+  
+  // Highlight tombol shift yang aktif
+  document.querySelectorAll(".shift-btn").forEach(btn => btn.classList.remove("active-shift"));
+  const shiftName = dashboard.shift.shift || "";
+  if(shiftName.toUpperCase().includes("PAGI")){
+    document.getElementById("shiftPagiBtn")?.classList.add("active-shift");
+  } else if(shiftName.toUpperCase().includes("MALAM")){
+    document.getElementById("shiftMalamBtn")?.classList.add("active-shift");
+  }
+  
   const canManage=MANAGE_ROLES.includes(String(u.role||"").toUpperCase());
   document.getElementById("newShiftBtn").style.display=canManage?"block":"none";
   document.getElementById("usersNav").style.display=canManage?"block":"none";
@@ -194,9 +379,40 @@ async function updateCheck(item,checked,btn){
   }
 }
 async function editData(cell,oldValue){const value=prompt("Edit data:",oldValue);if(value===null)return;try{showLoading();await api("editData",{cell,value});showToast("✓ Data berhasil diubah");await refreshDashboard()}catch(e){showToast(e.message)}finally{hideLoading()}}
-async function newShift(){const current=dashboard.shift.shift||"SHIFT 1";const m=current.match(/(\d+)/);const next=`SHIFT ${m?Number(m[1])+1:2}`;const shift=prompt("Nama shift baru:",next);if(!shift)return;if(!confirm(`Mulai ${shift}? Semua checkbox aktif akan di-reset untuk shift baru.`))return;try{showLoading();await api("startNewShift",{shift});showToast(`✓ ${shift} berhasil dimulai`);await refreshDashboard()}catch(e){showToast(e.message)}finally{hideLoading()}}
-async function refreshDashboard(){try{dashboard=await api("getDashboard");renderUser();renderStats();renderTable();renderOnline()}catch(e){if(/session|login|token/i.test(e.message)){stopHeartbeat();clearSession();showLogin();setLoginStatus(e.message)}else showToast(e.message)}}
-async function loadHistory(){try{showLoading();const rows=await api("getHistory");document.getElementById("historyTable").innerHTML=`<div class="history-table"><table class="mini-table"><thead><tr><th>Waktu</th><th>Email</th><th>Action</th><th>Shift</th><th>Cell</th><th>Item</th><th>Old</th><th>New</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.timestamp)}</td><td>${esc(x.email)}</td><td>${esc(x.action)}</td><td>${esc(x.shift)}</td><td>${esc(x.cell)}</td><td>${esc(x.item)}</td><td>${esc(x.oldValue)}</td><td>${esc(x.newValue)}</td></tr>`).join("")}</tbody></table></div>`}catch(e){showToast(e.message)}finally{hideLoading()}}
+async function newShift(){
+  const current=dashboard.shift.shift||"SHIFT 1";
+  const m=current.match(/(\d+)/);
+  const next=`SHIFT ${m?Number(m[1])+1:2}`;
+  const shift=prompt("Nama shift baru:",next);
+  if(!shift)return;
+  if(!confirm(`Mulai ${shift}? Semua checkbox aktif akan di-reset untuk shift baru.`))return;
+  try{
+    showLoading();
+    await api("startNewShift",{shift});
+    showToast(`✓ ${shift} berhasil dimulai`);
+    await refreshDashboard();
+  }catch(e){
+    showToast(e.message);
+  }finally{hideLoading()}
+}
+async function refreshDashboard(){
+  try{
+    dashboard=await api("getDashboard");
+    renderUser();renderStats();renderTable();renderOnline();
+    renderSettings();
+  }catch(e){
+    if(/session|login|token/i.test(e.message)){
+      stopHeartbeat();clearSession();showLogin();setLoginStatus(e.message);
+    }else showToast(e.message);
+  }
+}
+async function loadHistory(){
+  try{
+    showLoading();
+    const rows=await api("getHistory");
+    document.getElementById("historyTable").innerHTML=`<div class="history-table"><table class="mini-table"><thead><tr><th>Waktu</th><th>Email</th><th>Action</th><th>Shift</th><th>Cell</th><th>Item</th><th>Old</th><th>New</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.timestamp)}</td><td>${esc(x.email)}</td><td>${esc(x.action)}</td><td>${esc(x.shift)}</td><td>${esc(x.cell)}</td><td>${esc(x.item)}</td><td>${esc(x.oldValue)}</td><td>${esc(x.newValue)}</td></tr>`).join("")}</tbody></table></div>`;
+  }catch(e){showToast(e.message)}finally{hideLoading()}
+}
 async function loadUsers(){
   try{
     showLoading();
@@ -229,8 +445,29 @@ async function loadUsers(){
     }
   }catch(e){showToast(e.message)}finally{hideLoading()}
 }
-function showPage(page){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));document.getElementById(page+"Page").classList.remove("hidden");document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));const btn=document.querySelector(`.nav[data-page="${page}"]`);if(btn)btn.classList.add("active");if(page==="history")loadHistory();if(page==="users")loadUsers()}
-async function logoutUser(){try{showLoading();if(sessionToken)await api("logout")}catch(e){}finally{stopHeartbeat();clearSession();dashboard=null;showLogin();setLoginStatus("Kamu sudah logout.");hideLoading()}}
+function showPage(page){
+  document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));
+  document.getElementById(page+"Page").classList.remove("hidden");
+  document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
+  const btn=document.querySelector(`.nav[data-page="${page}"]`);
+  if(btn)btn.classList.add("active");
+  if(page==="history")loadHistory();
+  if(page==="users")loadUsers();
+  if(page==="settings")renderSettings();
+}
+async function logoutUser(){
+  try{
+    showLoading();
+    if(sessionToken)await api("logout");
+  }catch(e){}finally{
+    stopHeartbeat();
+    clearSession();
+    dashboard=null;
+    showLogin();
+    setLoginStatus("Kamu sudah logout.");
+    hideLoading();
+  }
+}
 function formatTime(iso){if(!iso)return"";try{return new Date(iso).toLocaleString("id-ID",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}catch(e){return iso}}
 function showLoading(){document.getElementById("loading").classList.remove("hidden")}
 function hideLoading(){document.getElementById("loading").classList.add("hidden")}
